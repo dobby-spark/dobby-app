@@ -1,8 +1,8 @@
 'use strict';
 
-// When not cloning the `node-wit` repo, replace the `require` like so:
-// const Wit = require('node-wit').Wit;
-const Wit = require('../').Wit;
+const Wit = require('node-wit').Wit;
+// When cloning the `node-wit` repo, replace the `require` like so:
+// const Wit = require('../').Wit;
 
 const firstEntityValue = (entities, entity) => {
   const val = entities && entities[entity] &&
@@ -34,13 +34,15 @@ const bestEntityValue = (entities, entity) => {
   return typeof result === 'object' ? result.value : result;
 };
 
-const token = (() => {
-  if (process.argv.length !== 3) {
-    console.log('usage: node examples/template.js <wit-token>');
-    process.exit(1);
-  }
-  return process.argv[2];
-})();
+// const token = (() => {
+//   if (process.argv.length !== 3) {
+//     console.log('usage: node examples/template.js <wit-token>');
+//     process.exit(1);
+//   }
+//   return process.argv[2];
+// })();
+
+const token = "RO7ASNPUVWRS6JVSSWAQ534IMGHETEBN";
 
 var state = {};
 
