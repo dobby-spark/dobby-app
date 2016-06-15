@@ -173,6 +173,8 @@ const actions = {
   dobby(sessionId, context, cb) {
     if (context.intent == 'info') {
       actions.findInfo(sessionId, context, cb);
+    } else if (context.intent == 'greeting') {
+      actions.say(sessionId, context, "Greetings from " + context.topic, cb);
     } else {
       actions.say(sessionId, context, "sorry, cannot help with " + context.intent + " for " + context.topic + " yet!", cb); 
     }
