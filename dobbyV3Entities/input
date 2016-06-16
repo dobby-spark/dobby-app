@@ -1,0 +1,34 @@
+{
+  "builtin" : false,
+  "doc" : "User's response to Dobby's question",
+  "exotic" : false,
+  "id" : "5761e5ee-abd1-40d1-98ab-4801799e6896",
+  "lang" : "en",
+  "lookups" : [ "keywords", "free-text" ],
+  "name" : "input",
+  "values" : [ {
+    "value" : "how-to",
+    "expressions" : [ "how to", "how-to" ]
+  }, {
+    "value" : "complete",
+    "expressions" : [ "did", "done", "got it", "ok" ]
+  }, {
+    "value" : "next",
+    "expressions" : [ "next", "thanks" ]
+  }, {
+    "value" : "no",
+    "expressions" : [ "don't", "n't", "no" ]
+  }, {
+    "value" : "incomplete",
+    "expressions" : [ "didn't", "not" ]
+  }, {
+    "value" : "text",
+    "expressions" : [ "text" ]
+  }, {
+    "value" : "yes",
+    "expressions" : [ "ok", "yes" ]
+  }, {
+    "value" : "wiki",
+    "expressions" : [ "wiki" ]
+  } ]
+}

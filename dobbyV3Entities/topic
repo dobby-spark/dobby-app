@@ -1,0 +1,25 @@
+{
+  "builtin" : false,
+  "doc" : "Topic that user needs help on",
+  "exotic" : false,
+  "id" : "5761e504-6229-4582-8146-594b09192c43",
+  "lang" : "en",
+  "lookups" : [ "keywords" ],
+  "name" : "topic",
+  "values" : [ {
+    "value" : "pager",
+    "expressions" : [ "page", "pager" ]
+  }, {
+    "value" : "dobby",
+    "expressions" : [ "dobby" ]
+  }, {
+    "value" : "docker",
+    "expressions" : [ "docker", "dockers" ]
+  }, {
+    "value" : "tests",
+    "expressions" : [ "DS", "automation", "sanity", "test", "tests" ]
+  }, {
+    "value" : "AA",
+    "expressions" : [ "AA", "auto attendant" ]
+  } ]
+}

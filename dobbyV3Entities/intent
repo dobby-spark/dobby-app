@@ -1,0 +1,19 @@
+{
+  "builtin" : false,
+  "doc" : "What the user want dobby to do",
+  "exotic" : false,
+  "id" : "5761e4e0-dc1e-4eda-93dd-5ae8e3dc97eb",
+  "lang" : "en",
+  "lookups" : [ "keywords" ],
+  "name" : "intent",
+  "values" : [ {
+    "value" : "greeting",
+    "expressions" : [ "are you there", "hello", "hi" ]
+  }, {
+    "value" : "coaching",
+    "expressions" : [ "configure", "create", "help", "how", "what" ]
+  }, {
+    "value" : "info",
+    "expressions" : [ "info", "information" ]
+  } ]
+}
