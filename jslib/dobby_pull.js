@@ -9,31 +9,41 @@ module.exports = {
   getMessages: getMessages
 };
 
-function getMessages(cb) {
+var myChannel;
+
+var myEmail;
+
+function getMessages(channel, email, cb) {
   // console.log('polling for messages...');
   const opts = {};
-  request.get('https://dobby-spark.appspot.com/v1/poll/philip1on1', function (err, resp, data) {
+  if (!myChannel) {
+    myChannel = channel;
+  }
+  if (!myEmail) {
+    myEmail = email;
+  }
+  request.get('https://dobby-spark.appspot.com/v1/poll/' + channel, function (err, resp, data) {
     // console.log('finished polling');
     if (cb) {
-      poll(err || data.error && data.error.message, data, cb);
+      poll(myEmail, err || data.error && data.error.message, data, cb);
     }
   });
 };
 
-function poll(err, d, processSparkMessageCB) {
+function poll(myEmail, err, d, processSparkMessageCB) {
   if (err) {
     console.log(
       'Oops! An error occurred while fetching messages:',
       err
     );
   } else {
-    console.log("got messages:", d);
+    // console.log("got messages:", d);
     // walk through each message notification
     if (d) {
       var data = JSON.parse(d);
       // console.log('data:', data);
       data.forEach(function (value) {
-        if (value.data.personEmail && value.data.personEmail.includes('dobby.spark@gmail.com')) {
+        if (value.data.personEmail && value.data.personEmail.includes(myEmail)) {
           // this is my own message, so discard
           // console.log("discarding my own message");
         } else {
@@ -45,5 +55,5 @@ function poll(err, d, processSparkMessageCB) {
   }
   // sleep
   sleep.sleep(1);
-  getMessages(processSparkMessageCB);
+  getMessages(myChannel, myEmail, processSparkMessageCB);
 };
