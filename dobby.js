@@ -1,6 +1,6 @@
 'use strict';
 
-const Wit = require('node-wit').Wit;
+const dobby_bot = require('./jslib/dobby_bot');
 const dobby_pull = require('./jslib/dobby_pull');
 const dobby_spark = require('./jslib/dobby_spark');
 
@@ -133,10 +133,10 @@ const msgs = {
         },
       },
       'askAck': {
-        'yes': {
-          'msg': 'do you know what is source of the page?',
-          'next': 'askPageSource',
-        },
+        // 'yes': {
+        //   'msg': 'do you know what is source of the page?',
+        //   'next': 'askPageSource',
+        // },
         '1': {
           'msg': 'have you acknowledge page at pager duty website or app?',
           'next': 'askAck',
@@ -151,10 +151,10 @@ const msgs = {
         },
       },
       'askPageSource': {
-        'yes': {
-          'msg': 'great please refer to 2AM doc to resolve page',
-          'next': null,
-        },
+        // 'yes': {
+        //   'msg': 'great please refer to 2AM doc to resolve page',
+        //   'next': null,
+        // },
         'complete': {
           'msg': 'great please refer to 2AM doc to resolve page',
           'next': null,
@@ -289,17 +289,20 @@ const actions = {
     // console.log("entities:", entities);
     // console.log("context", context);
     // console.log("session context:", sessions[sessionId].context);
-    const intent = bestEntityValue(entities, 'intent');
+    // const intent = bestEntityValue(entities, 'intent');
+    const intent = entities['intent'];
     if (intent) {
       sessions[sessionId].context.intent = intent;
       context.intent = intent;
     }
-    const topic = bestEntityValue(entities, 'topic');
+    // const topic = bestEntityValue(entities, 'topic');
+    const topic = entities['topic'];
     if (topic) {
       sessions[sessionId].context.topic = topic;
       context.topic = topic;
     }
-    const input = bestEntityValue(entities, 'input');
+    // const input = bestEntityValue(entities, 'input');
+    const input = entities['input'];
     if (input) {
       sessions[sessionId].context.input = input;
       context.input = input;
@@ -344,15 +347,14 @@ const actions = {
   },
 };
 
-const wit = new Wit(token, actions);
-
 function processSparkMessage(err, d) {
   if (d) {
     console.log("got message:", d);
     var data = JSON.parse(d);
     const sessionId = findOrCreateSession(data.roomId);
     try {
-      wit.runActions(
+      dobby_bot.runActions(
+        actions,
         sessionId, // the user's current session
         data['text'], // the user's message 
         sessions[sessionId].context, // the user's current session state
@@ -367,6 +369,7 @@ function processSparkMessage(err, d) {
         }
       );      
     } catch (e) {
+      console.log("parser error:", e);
       dobby_spark.sendMessage(data.roomId, "looks like wit is down, please try later", (err, data) => {
         if (err) {
           console.log(

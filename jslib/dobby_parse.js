@@ -70,8 +70,8 @@ function parseMessage(message) {
   topic = find(topics, topicMap, tokens);
   input = find(inputs, inputMap, tokens);
   return {
-    intent: intent,
-    topic: topic,
-    input: input,
+    'intent': intent,
+    'topic': topic,
+    'input': input,
   }
 };
