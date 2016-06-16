@@ -102,11 +102,47 @@ const fetchMessage = (msgId, cb) => {
 
 // map INTENT --> TOPIC --> STATE --> INPUT --> MSG, NEXT_STATE
 const msgs = {
+  '1': {
+    '1': {
+      '1': {
+        '1': {
+          'msg': 'Sorry, I do not understand, please try again.',
+          'next': null,
+        },
+      }
+    },
+  },
+  'greeting': {
+    'dobby': {
+      '1': {
+        '1': {
+          'msg': 'Greetings from Dobby!',
+          'next': null,
+        },
+      }
+    },
+    '1': {
+      '1': {
+        '1': {
+          'msg': 'Hi there!',
+          'next': null,
+        },
+      }
+    },
+  },
   'info': {
-    'pager': {
+    '1': {
       '1': {
         '1': {
           'msg': 'what kind of information you need?',
+          'next': '1',
+        },
+      }
+    },
+    'pager': {
+      '1': {
+        '1': {
+          'msg': 'what you looking for pager?',
           'next': '1',
         },
         'wiki': {
@@ -124,7 +160,7 @@ const msgs = {
     'tests': {
       '1': {
         '1': {
-          'msg': 'what kind of information you need?',
+          'msg': 'what you looking for tests?',
           'next': '1',
         },
         'wiki': {
@@ -141,6 +177,14 @@ const msgs = {
     },
   },
   'coaching': {
+    '1': {
+      '1': {
+        '1': {
+          'msg': 'what you want me to help on?',
+          'next': '1',
+        },
+      }
+    },
     'pager': {
       '1': {
         '1': {
@@ -150,20 +194,34 @@ const msgs = {
       },
       'askAck': {
         'yes': {
-          'msg': 'great, how can i help?',
-          'next': 'help',
+          'msg': 'do you know what is source of the page?',
+          'next': 'askPageSource',
         },
-        'no': {
-          'msg': 'please acknowledge page at pager duty website or app',
-          'next': 'askAck',
-        },
-        'incomplete': {
+        '1': {
           'msg': 'have you acknowledge page at pager duty website or app?',
           'next': 'askAck',
         },
         'complete': {
-          'msg': 'great, how can i help?',
-          'next': 'help',
+          'msg': 'do you know what is source of the page?',
+          'next': 'askPageSource',
+        },
+        'next': {
+          'msg': 'do you know what is source of the page?',
+          'next': 'askPageSource',
+        },
+      },
+      'askPageSource': {
+        'yes': {
+          'msg': 'great please refer to 2AM doc to resolve page',
+          'next': null,
+        },
+        'complete': {
+          'msg': 'great please refer to 2AM doc to resolve page',
+          'next': null,
+        },
+        '1': {
+          'msg': 'Ok, please refer to pager duty incidence for source of page',
+          'next': 'askPageSource',
         },
       },
     },
@@ -179,15 +237,19 @@ const msgs = {
             'msg': 'hmm, do you have session ID of the failed test?',
             'next': 'testsFailureAskSessionID',
           },
+          '1': {
+            'msg': 'sorry, I do not know how to handle this!!!',
+            'next': null,
+          },
         },
         'testsFailureAskSessionID': {
           'yes': {
             'msg': 'can you find call trace and check where it failed?',
             'next': 'debugTestFailureAskPoF',
           },
-          'yes': {
-            'msg': 'can you find call trace and check where it failed?',
-            'next': 'debugTestFailureAskPoF',
+          '1': {
+            'msg': 'please refer to test report and find session ID from failed test log',
+            'next': 'testsFailureAskSessionID',
           },
         },
     },
@@ -219,6 +281,45 @@ const mergeContext = (sessionId, context) => {
   context.topic = sessions[sessionId].context.topic;
   context.input = sessions[sessionId].context.input;
   context.state = sessions[sessionId].context.state;
+};
+
+// const nextEntry = (intent, topic, state, input) => {
+const nextEntry = (context) => {
+  var next;
+  try {
+    next = msgs[context.intent][context.topic][context.state][context.input];
+    if (next) {
+      return next;
+    }
+  } catch (e) {
+    // failed
+  };
+  try {
+    next = msgs[context.intent][context.topic][context.state]['1'];
+    if (next) {
+      return next;
+    }
+  } catch (e) {
+    // failed
+  };
+  try {
+    next = msgs[context.intent][context.topic]['1']['1'];
+    if (next) {
+      return next;
+    }
+  } catch (e) {
+    // failed
+  };
+  try {
+    next = msgs[context.intent]['1']['1']['1'];
+    if (next) {
+      return next;
+    }
+  } catch (e) {
+    // failed
+  };
+  return msgs['1']['1']['1']['1'];
+
 };
 
 const actions = {
@@ -268,6 +369,7 @@ const actions = {
   },
   error(sessionId, context, err) {
     console.log(err.message);
+    actions.clean(sessionId, context);
   },
   clean(sessionId, context, cb) {
     console.log("cleaning up state/context");
@@ -277,38 +379,28 @@ const actions = {
   },
   nextState(sessionId, context, cb) {
     mergeContext(sessionId, context);
+    sessions[sessionId].context.input = null;
     console.log("context", context);
-    const intent = context.intent;
-    const topic = context.topic;
-    var input = context.input;
-    if (input == null) {
-      input = '1';
-    }
-    var state = context.state;
-    if (state == null) {
-      state = '1';
-    }
-    var nextState = msgs[intent][topic][state][input].next;
-    var nextIntent = msgs[intent][topic][state][input].intent;
-
-    if (nextIntent) {
-      sessions[sessionId].context.intent = nextIntent;
-      sessions[sessionId].context.state = nextState;
-      sessions[sessionId].context.input = null;
+    var next = nextEntry(context);
+    console.log("got next entry:", next);
+    if (next.intent) {
+      sessions[sessionId].context.intent = next.intent;
+      sessions[sessionId].context.state = next.next;
       actions.nextState(sessionId, context, cb);
       return;
     }
 
-    var msg = msgs[intent][topic][state][input].msg;
+    // var msg = msgs[intent][topic][state][input].msg;
+    var msg = next.msg;
     if (msg == null) {
       msg = "sorry, can't help with " + intent + " for " + topic + "!";
-      nextState = null;
-      nextIntent = null;
+      next.next = null;
+      next.intent = null;
     }
-    if (nextState == null) {
+    if (next.next == null) {
       actions.clean(sessionId, context, cb);
     } else {
-      sessions[sessionId].context.state = nextState;
+      sessions[sessionId].context.state = next.next;
     }
     actions.say(sessionId, context, msg, cb);
   },
