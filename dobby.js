@@ -100,7 +100,7 @@ const fetchMessage = (msgId, cb) => {
   });
 };
 
-// map INTENT --> TOPIC --> STATE --> INPUT --> MSG, NEXT_STATE
+// map INTENT --> TOPIC --> STATE --> INPUT --> MSG, NEXT_STATE, NEXT_INTENT
 const msgs = {
   '1': {
     '1': {
@@ -136,6 +136,14 @@ const msgs = {
         '1': {
           'msg': 'what kind of information you need?',
           'next': '1',
+        },
+      }
+    },
+    'dobby': {
+      '1': {
+        '1': {
+          'msg': 'Dobby can help with handling pagers, tests, auto attendant etc.!',
+          'next': null,
         },
       }
     },
@@ -182,6 +190,13 @@ const msgs = {
         '1': {
           'msg': 'what you want me to help on?',
           'next': '1',
+        },
+      }
+    },
+    'dobby': {
+      '1': {
+        '1': {
+          'intent': 'info',
         },
       }
     },
@@ -271,6 +286,7 @@ const findOrCreateSession = (roomId) => {
     // No session found for roomId, let's create a new one
     sessionId = new Date().toISOString();
     sessions[sessionId] = {roomId: roomId, context: {}};
+    console.log("created new session:", sessions[sessionId]);
   }
   return sessionId;
 };
