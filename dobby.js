@@ -44,7 +44,8 @@ const bestEntityValue = (entities, entity) => {
 //   return process.argv[2];
 // })();
 
-const token = "RO7ASNPUVWRS6JVSSWAQ534IMGHETEBN";
+// token for dobby V3
+const token = "VV4QBUD2ZYMXRJBX4TWFQCSEJIWRXGXG";
 
 const pollReq = request.defaults({
   uri: 'https://dobby-spark.appspot.com/v1/poll/amit1on1',
@@ -99,6 +100,100 @@ const fetchMessage = (msgId, cb) => {
   });
 };
 
+// map INTENT --> TOPIC --> STATE --> INPUT --> MSG, NEXT_STATE
+const msgs = {
+  'info': {
+    'pager': {
+      '1': {
+        '1': {
+          'msg': 'what kind of information you need?',
+          'next': '1',
+        },
+        'wiki': {
+          'msg': 'wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service',
+          'next': null,
+          'intent': null,
+        },
+        'how-to': {
+          'msg': null,
+          'next': null,
+          'intent': 'coaching',
+        },
+      },
+    },
+    'tests': {
+      '1': {
+        '1': {
+          'msg': 'what kind of information you need?',
+          'next': '1',
+        },
+        'wiki': {
+          'msg': 'wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures',
+          'next': null,
+          'intent': null,
+        },
+        'how-to': {
+          'msg': null,
+          'next': null,
+          'intent': 'coaching',
+        },
+      },
+    },
+  },
+  'coaching': {
+    'pager': {
+      '1': {
+        '1': {
+          'msg': 'have you acknowledged the page?',
+          'next': 'askAck',
+        },
+      },
+      'askAck': {
+        'yes': {
+          'msg': 'great, how can i help?',
+          'next': 'help',
+        },
+        'no': {
+          'msg': 'please acknowledge page at pager duty website or app',
+          'next': 'askAck',
+        },
+        'incomplete': {
+          'msg': 'have you acknowledge page at pager duty website or app?',
+          'next': 'askAck',
+        },
+        'complete': {
+          'msg': 'great, how can i help?',
+          'next': 'help',
+        },
+      },
+    },
+    'tests': {
+        '1': {
+          '1': {
+            'msg': 'what help you need with tests?',
+            'next': 'askType',
+          },
+        },
+        'askType': {
+          'failure': {
+            'msg': 'hmm, do you have session ID of the failed test?',
+            'next': 'testsFailureAskSessionID',
+          },
+        },
+        'testsFailureAskSessionID': {
+          'yes': {
+            'msg': 'can you find call trace and check where it failed?',
+            'next': 'debugTestFailureAskPoF',
+          },
+          'yes': {
+            'msg': 'can you find call trace and check where it failed?',
+            'next': 'debugTestFailureAskPoF',
+          },
+        },
+    },
+  },
+};
+
 const sessions = {};
 
 const findOrCreateSession = (roomId) => {
@@ -111,13 +206,20 @@ const findOrCreateSession = (roomId) => {
     }
   });
   if (!sessionId) {
-    // No session found for user fbid, let's create a new one
+    // No session found for roomId, let's create a new one
     sessionId = new Date().toISOString();
     sessions[sessionId] = {roomId: roomId, context: {}};
   }
   return sessionId;
 };
 
+const mergeContext = (sessionId, context) => {
+  // console.log("merging context:", sessions[sessionId].context);
+  context.intent = sessions[sessionId].context.intent;
+  context.topic = sessions[sessionId].context.topic;
+  context.input = sessions[sessionId].context.input;
+  context.state = sessions[sessionId].context.state;
+};
 
 const actions = {
   say(sessionId, context, message, cb) {
@@ -139,18 +241,28 @@ const actions = {
     } else {
       console.log("did not find any room Id");
     }
-    cb();
+    if (cb) {
+     cb();
+    }
   },
   merge(sessionId, context, entities, message, cb) {
     console.log("entities:", entities);
     console.log("context", context);
+    console.log("session context:", sessions[sessionId].context);
     const intent = bestEntityValue(entities, 'intent');
     if (intent) {
+      sessions[sessionId].context.intent = intent;
       context.intent = intent;
     }
     const topic = bestEntityValue(entities, 'topic');
     if (topic) {
+      sessions[sessionId].context.topic = topic;
       context.topic = topic;
+    }
+    const input = bestEntityValue(entities, 'input');
+    if (input) {
+      sessions[sessionId].context.input = input;
+      context.input = input;
     }
     cb(context);
   },
@@ -160,24 +272,45 @@ const actions = {
   clean(sessionId, context, cb) {
     console.log("cleaning up state/context");
     context = {};
+    sessions[sessionId].context = {};
     cb(context);
   },
-  findInfo(sessionId, context, cb) {
-    if (context.topic == 'pager') {
-      context.url = 'http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service';
-    } else if (context.topic == 'tests') {
-      context.url = 'http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures';
+  nextState(sessionId, context, cb) {
+    mergeContext(sessionId, context);
+    console.log("context", context);
+    const intent = context.intent;
+    const topic = context.topic;
+    var input = context.input;
+    if (input == null) {
+      input = '1';
     }
-    actions.say(sessionId, context, "you can find " + context.intent + " for " + context.topic + " @ " + context.url, cb);
-  },
-  dobby(sessionId, context, cb) {
-    if (context.intent == 'info') {
-      actions.findInfo(sessionId, context, cb);
-    } else if (context.intent == 'greeting') {
-      actions.say(sessionId, context, "Greetings from " + context.topic, cb);
+    var state = context.state;
+    if (state == null) {
+      state = '1';
+    }
+    var nextState = msgs[intent][topic][state][input].next;
+    var nextIntent = msgs[intent][topic][state][input].intent;
+
+    if (nextIntent) {
+      sessions[sessionId].context.intent = nextIntent;
+      sessions[sessionId].context.state = nextState;
+      sessions[sessionId].context.input = null;
+      actions.nextState(sessionId, context, cb);
+      return;
+    }
+
+    var msg = msgs[intent][topic][state][input].msg;
+    if (msg == null) {
+      msg = "sorry, can't help with " + intent + " for " + topic + "!";
+      nextState = null;
+      nextIntent = null;
+    }
+    if (nextState == null) {
+      actions.clean(sessionId, context, cb);
     } else {
-      actions.say(sessionId, context, "sorry, cannot help with " + context.intent + " for " + context.topic + " yet!", cb); 
+      sessions[sessionId].context.state = nextState;
     }
+    actions.say(sessionId, context, msg, cb);
   },
 };
 
@@ -201,7 +334,7 @@ const poll = (err, d) => {
             // fetch the message from spark
             fetchMessage(value.data.id, (err, d) => {
               if (d) {
-                console.log("got message:", d);
+                // console.log("got message:", d);
                 var data = JSON.parse(d);
                 const sessionId = findOrCreateSession(data.roomId);
                 wit.runActions(
@@ -224,7 +357,7 @@ const poll = (err, d) => {
                       // }
 
                       // Updating the user's current session state
-                      sessions[sessionId].context = context;
+                      // sessions[sessionId].context = context;
                     }
                   }
                 );
