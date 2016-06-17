@@ -3,7 +3,9 @@
 const cassandra = require('cassandra-driver');
 
 module.exports = {
-  getState: getState
+  getState: getState,
+  getVocab: getVocab,
+  getVocabResult: getVocabResult,
 };
 
 const cassClient = new cassandra.Client({ contactPoints: ['ucm211.cisco.com'], keyspace: 'demo' });
@@ -26,4 +28,19 @@ function getState(intent, topic, state, input, cb) {
   // valStr = valStr + "state=" + state + " AND ";
   // valStr = valStr + "input=" + input;
   // cassClient.execute("select msg, nextState, nextIntent from state_mc WHERE " + valStr, cb);
+}
+
+function getVocab(type, cb) {
+  var query = 'SELECT key, result FROM vocab WHERE type=?';
+  // var query = "SELECT key, result FROM vocab WHERE type='input'";
+  var params = [type];
+  console.log("Cass read params:", params);
+  cassClient.execute(query, params, cb);
+}
+
+function getVocabResult(type, key, cb) {
+  var query = 'SELECT result FROM vocab WHERE type=? AND key=?';
+  var params = [type, key];
+  console.log("Cass read params:", params);
+  cassClient.execute(query, params, cb);
 }

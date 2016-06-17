@@ -1,41 +1,41 @@
-intent, hello, greeting
-intent, hi, greeting
-intent, ola, greeting
-intent, how, coaching
-intent, what, coaching
-intent, help, coaching
-intent, info, info
-intent, information, info
-intent, idea, info
-intent, detail, info
-intent, details, info
-topic, pager, pager
-topic, page, pager
-topic, dobby, dobby
-topic, you, dobby
-topic, tests, tests
-topic, test, tests
-topic, ds, tests
-topic, qs, tests
-topic, sanity, tests
-input, how, how-to
-input, howto, how-to
-input, how, how-to
-input, yes, complete
-input, did, complete
-input, done, complete
-input, ok, complete
-input, okay, complete
-input, yup, complete
-input, next, next
-input, thanks, next
-input, no, incomplete
-input, didnt, incomplete
-input, dont, incomplete
-input, not, incomplete
-input, nope, incomplete
-input, wiki, wiki
-input, link, wiki
-input, links, wiki
-input, idea, wiki
-input, info, wiki
+intent,hello,greeting
+intent,hi,greeting
+intent,ola,greeting
+intent,how,coaching
+intent,what,coaching
+intent,help,coaching
+intent,info,info
+intent,information,info
+intent,idea,info
+intent,detail,info
+intent,details,info
+topic,pager,pager
+topic,page,pager
+topic,dobby,dobby
+topic,you,dobby
+topic,tests,tests
+topic,test,tests
+topic,ds,tests
+topic,qs,tests
+topic,sanity,tests
+input,how,how-to
+input,howto,how-to
+input,how,how-to
+input,yes,complete
+input,did,complete
+input,done,complete
+input,ok,complete
+input,okay,complete
+input,yup,complete
+input,next,next
+input,thanks,next
+input,no,incomplete
+input,didnt,incomplete
+input,dont,incomplete
+input,not,incomplete
+input,nope,incomplete
+input,wiki,wiki
+input,link,wiki
+input,links,wiki
+input,idea,wiki
+input,info,wiki
