@@ -3,18 +3,19 @@
 const dobby_bot = require('./jslib/dobby_bot');
 const dobby_pull = require('./jslib/dobby_pull');
 const dobby_spark = require('./jslib/dobby_spark');
+const dobby_cass = require('./jslib/dobby_cass');
+const async = require('async');
 
 const bestEntityValue = (entities, entity) => {
   const val = entities && entities[entity] &&
     Array.isArray(entities[entity]) &&
     entities[entity].length > 0 &&
-    entities[entity][0].value
-  ;
+    entities[entity][0].value;
   if (!val) {
     return null;
   }
   var result = null;
-  entities[entity].forEach(function(value) {
+  entities[entity].forEach(function (value) {
     if (result == null || result.confidence < value.confidence) {
       result = value;
     }
@@ -133,10 +134,10 @@ const msgs = {
         },
       },
       'askAck': {
-        // 'yes': {
-        //   'msg': 'do you know what is source of the page?',
-        //   'next': 'askPageSource',
-        // },
+        'yes': {
+          'msg': 'do you know what is source of the page?',
+          'next': 'askPageSource',
+        },
         '1': {
           'msg': 'have you acknowledge page at pager duty website or app?',
           'next': 'askAck',
@@ -151,10 +152,10 @@ const msgs = {
         },
       },
       'askPageSource': {
-        // 'yes': {
-        //   'msg': 'great please refer to 2AM doc to resolve page',
-        //   'next': null,
-        // },
+        'yes': {
+          'msg': 'great please refer to 2AM doc to resolve page',
+          'next': null,
+        },
         'complete': {
           'msg': 'great please refer to 2AM doc to resolve page',
           'next': null,
@@ -166,32 +167,32 @@ const msgs = {
       },
     },
     'tests': {
+      '1': {
         '1': {
-          '1': {
-            'msg': 'what help you need with tests?',
-            'next': 'askType',
-          },
+          'msg': 'what help you need with tests?',
+          'next': 'askType',
         },
-        'askType': {
-          'failure': {
-            'msg': 'hmm, do you have session ID of the failed test?',
-            'next': 'testsFailureAskSessionID',
-          },
-          '1': {
-            'msg': 'sorry, I do not know how to handle this!!!',
-            'next': null,
-          },
+      },
+      'askType': {
+        'failure': {
+          'msg': 'hmm, do you have session ID of the failed test?',
+          'next': 'testsFailureAskSessionID',
         },
-        'testsFailureAskSessionID': {
-          'yes': {
-            'msg': 'can you find call trace and check where it failed?',
-            'next': 'debugTestFailureAskPoF',
-          },
-          '1': {
-            'msg': 'please refer to test report and find session ID from failed test log',
-            'next': 'testsFailureAskSessionID',
-          },
+        '1': {
+          'msg': 'sorry, I do not know how to handle this!!!',
+          'next': null,
         },
+      },
+      'testsFailureAskSessionID': {
+        'yes': {
+          'msg': 'can you find call trace and check where it failed?',
+          'next': 'debugTestFailureAskPoF',
+        },
+        '1': {
+          'msg': 'please refer to test report and find session ID from failed test log',
+          'next': 'testsFailureAskSessionID',
+        },
+      },
     },
   },
 };
@@ -210,7 +211,7 @@ const findOrCreateSession = (roomId) => {
   if (!sessionId) {
     // No session found for roomId, let's create a new one
     sessionId = new Date().toISOString();
-    sessions[sessionId] = {roomId: roomId, context: {}};
+    sessions[sessionId] = { roomId: roomId, context: {} };
     console.log("created new session:", sessions[sessionId]);
   }
   return sessionId;
@@ -225,42 +226,104 @@ const mergeContext = (sessionId, context) => {
 };
 
 // const nextEntry = (intent, topic, state, input) => {
-const nextEntry = (context) => {
-  var next;
-  try {
-    next = msgs[context.intent][context.topic][context.state][context.input];
-    if (next) {
-      return next;
-    }
-  } catch (e) {
-    // failed
-  };
-  try {
-    next = msgs[context.intent][context.topic][context.state]['1'];
-    if (next) {
-      return next;
-    }
-  } catch (e) {
-    // failed
-  };
-  try {
-    next = msgs[context.intent][context.topic]['1']['1'];
-    if (next) {
-      return next;
-    }
-  } catch (e) {
-    // failed
-  };
-  try {
-    next = msgs[context.intent]['1']['1']['1'];
-    if (next) {
-      return next;
-    }
-  } catch (e) {
-    // failed
-  };
-  return msgs['1']['1']['1']['1'];
+const nextEntry = (context, nextEntryCB) => {
+  var next = null;
+  if (!context.intent) {
+    context.intent = '1';
+  }
+  if (!context.topic) {
+    context.topic = '1';
+  }
+  if (!context.state) {
+    context.state = '1';
+  }
+  if (!context.input) {
+    context.input = '1';
+  }
 
+  function convertResult(row) {
+    var res = {};
+    res.next = row.nextstate ? row.nextstate : null;
+    res.intent = row.nextintent ? row.nextintent : null;
+    res.msg = row.msg ? row.msg : null;
+    return res;
+  }
+
+  // next = msgs[context.intent][context.topic][context.state][context.input];
+  async.series([
+    function (callback) {
+      if (!next) {
+        dobby_cass.getState(context.intent, context.topic, context.state, context.input, function (err, result) {
+          if (err) {
+            next = null;
+          } else if (result.rows.length > 0) {
+            next = convertResult(result.rows[0]);
+          }
+          callback(err, null);
+        });
+      } else {
+        callback(null, null);
+      }
+    },
+    function (callback) {
+      if (!next) {
+        dobby_cass.getState(context.intent, context.topic, context.state, '1', function (err, result) {
+          if (err) {
+            next = null;
+          } else if (result.rows.length > 0) {
+            next = convertResult(result.rows[0]);
+          }
+          callback(err, null);
+        });
+      } else {
+        callback(null, null);
+      }
+    },
+    function (callback) {
+      if (!next) {
+        dobby_cass.getState(context.intent, context.topic, '1', '1', function (err, result) {
+          if (err) {
+            next = null;
+          } else if (result.rows.length > 0) {
+            next = convertResult(result.rows[0]);
+          }
+          callback(err, null);
+        });
+      } else {
+        callback(null, null);
+      }
+    },
+    function (callback) {
+      if (!next) {
+        dobby_cass.getState(context.intent, '1', '1', '1', function (err, result) {
+          if (err) {
+            next = null;
+          } else if (result.rows.length > 0) {
+            next = convertResult(result.rows[0]);
+          }
+          callback(err, null);
+        });
+      } else {
+        callback(null, null);
+      }
+    },
+    function (callback) {
+      if (!next) {
+        dobby_cass.getState('1', '1', '1', '1', function (err, result) {
+          if (err) {
+            next = null;
+          } else if (result.rows.length > 0) {
+            next = convertResult(result.rows[0]);
+          }
+          callback(err, null);
+        });
+      } else {
+        callback(null, null);
+      }
+    }
+  ], function (err, results) {
+    nextEntryCB(next);
+  });
 };
 
 const actions = {
@@ -323,27 +386,50 @@ const actions = {
     mergeContext(sessionId, context);
     sessions[sessionId].context.input = null;
     console.log("context", context);
-    var next = nextEntry(context);
-    console.log("got next entry:", next);
-    if (next.intent) {
-      sessions[sessionId].context.intent = next.intent;
-      sessions[sessionId].context.state = next.next;
-      actions.nextState(sessionId, context, cb);
-      return;
-    }
+    nextEntry(context, function (result) {
+      var next = result;
+      console.log("got next entry:", next);
+      if (next.intent) {
+        sessions[sessionId].context.intent = next.intent;
+        sessions[sessionId].context.state = next.next;
+        actions.nextState(sessionId, context, cb);
+        return;
+      }
 
-    var msg = next.msg;
-    if (msg == null) {
-      msg = "sorry, can't help with " + intent + " for " + topic + "!";
-      next.next = null;
-      next.intent = null;
-    }
-    if (next.next == null) {
-      actions.clean(sessionId, context, cb);
-    } else {
-      sessions[sessionId].context.state = next.next;
-    }
-    actions.say(sessionId, context, msg, cb);
+      var msg = next.msg;
+      if (msg == null) {
+        msg = "sorry, can't help with " + intent + " for " + topic + "!";
+        next.next = null;
+        next.intent = null;
+      }
+      if (next.next == null) {
+        actions.clean(sessionId, context, cb);
+      } else {
+        sessions[sessionId].context.state = next.next;
+      }
+      actions.say(sessionId, context, msg, cb);
+    });
+    // var next = nextEntry(context);
+    // console.log("got next entry:", next);
+    // if (next.intent) {
+    //   sessions[sessionId].context.intent = next.intent;
+    //   sessions[sessionId].context.state = next.next;
+    //   actions.nextState(sessionId, context, cb);
+    //   return;
+    // }
+
+    // var msg = next.msg;
+    // if (msg == null) {
+    //   msg = "sorry, can't help with " + intent + " for " + topic + "!";
+    //   next.next = null;
+    //   next.intent = null;
+    // }
+    // if (next.next == null) {
+    //   actions.clean(sessionId, context, cb);
+    // } else {
+    //   sessions[sessionId].context.state = next.next;
+    // }
+    // actions.say(sessionId, context, msg, cb);
   },
 };
 
@@ -367,7 +453,7 @@ function processSparkMessage(err, d) {
             console.log('Waiting for further messages.');
           }
         }
-      );      
+      );
     } catch (e) {
       console.log("parser error:", e);
       dobby_spark.sendMessage(data.roomId, "looks like wit is down, please try later", (err, data) => {
@@ -379,9 +465,9 @@ function processSparkMessage(err, d) {
             err
           );
         }
-      });      
+      });
     }
   }
 }
-  
+
 dobby_pull.getMessages('amit1on1', 'dobby.spark@gmail.com', processSparkMessage);
