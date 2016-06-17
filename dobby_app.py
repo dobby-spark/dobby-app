@@ -15,48 +15,9 @@ import dobby_cass
 logger = dobby_log.setup_logger()
 
 CHAN = 'tsouksam'
-CHAN = 'spark'
+#CHAN = 'spark'
 
 g_sessions = {}
-
-def merge(session_id, context, entities, msg):
-    loc = first_entity_value(entities, 'location')
-    if loc:
-        context['loc'] = loc
-    intent = first_entity_value(entities, 'intent')
-    if intent:
-        context['intent'] = intent
-    topic = first_entity_value(entities, 'topic')
-    if topic:
-        context['topic'] = topic
-    return context
-
-def say(session_id, context, msg):
-    print(msg)
-    # spark message
-    roomData = '{"roomId": "%s", "text": "%s"}' \
-                  % (g_roomId, msg)
-    my_spark.spark_msg_request(roomData)
-    return context
-
-def findOrCreateSession(roomId):
-    for sessionId in g_sessions.keys():
-        if g_sessions[sessionId]['roomId'] == roomId:
-            return sessionId
-    temp_uuid = uuid.uuid1()
-    g_sessions[temp_uuid] = {'roomId': roomId, 'context': {'intent': None, 'topic': None, 'state': None, 'input': None}}
-    return temp_uuid
-
-def mergeContext(sessionId, context):
-    if 'intent' in g_sessions[sessionId]['context']:
-        context['intent'] = g_sessions[sessionId]['context']['intent']
-    if 'topic' in g_sessions[sessionId]['context']:
-        context['topic'] = g_sessions[sessionId]['context']['topic']
-    if 'input' in g_sessions[sessionId]['context']:
-        context['input'] = g_sessions[sessionId]['context']['input']
-    if 'state' in g_sessions[sessionId]['context']:
-        context['state'] = g_sessions[sessionId]['context']['state']
-    return context
 
 def merge(sessionId, context, entities, message):
     intent = entities['intent']
@@ -73,18 +34,47 @@ def merge(sessionId, context, entities, message):
         context['input'] = ainput
     return context
 
+def say(session_id, context, msg):
+    print(msg)
+    # spark message
+    roomData = '{"roomId": "%s", "text": "%s"}' \
+                  % (g_roomId, msg)
+    my_spark.spark_msg_request(roomData)
+    return context
+
+def findOrCreateSession(roomId):
+    for sessionId in g_sessions.keys():
+        if g_sessions[sessionId] and g_sessions[sessionId]['roomId'] == roomId:
+            return sessionId
+    temp_uuid = uuid.uuid1()
+    g_sessions[temp_uuid] = {'roomId': roomId, 'context': {'intent': None, 'topic': None, 'state': None, 'input': None}}
+    return temp_uuid
+
+def mergeContext(sessionId, context):
+    if 'intent' in g_sessions[sessionId]['context']:
+        context['intent'] = g_sessions[sessionId]['context']['intent']
+    if 'topic' in g_sessions[sessionId]['context']:
+        context['topic'] = g_sessions[sessionId]['context']['topic']
+    if 'input' in g_sessions[sessionId]['context']:
+        context['input'] = g_sessions[sessionId]['context']['input']
+    if 'state' in g_sessions[sessionId]['context']:
+        context['state'] = g_sessions[sessionId]['context']['state']
+    return context
+
+
+
 def nextEntry(context):
     result = my_db.get_next(context['intent'], context['topic'], context['state'], context['input'])
-    if result:
+    if result['msg']:
         return result
     result = my_db.get_next(context['intent'], context['topic'], context['state'], '1')
-    if result:
+    if result['msg']:
         return result
     result = my_db.get_next(context['intent'], context['topic'], '1', '1')
-    if result:
+    if result['msg']:
         return result
     result = my_db.get_next(context['intent'], '1', '1', '1')
-    if result:
+    if result['msg']:
         return result
     return my_db.get_next('1', '1', '1', '1')
 

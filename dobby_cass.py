@@ -27,12 +27,21 @@ class Db(object):
 
     def get_next(self, intent, topic, state, ainput):
         logger.debug('  db.get_intent: intent=%s', intent)
+        nextEntry = {'nextintent': None, 'nextstate': None, 'msg': None}
         try:
-            result = self.cursor.execute("select msg, nextstate, nextintent from state_mc where \
-            intent=%s and topic=%s and state=%s and input=%s" % (intent, topic, state, ainput))
+            result = self.cursor.execute("select * from state_mc")
+            #result = self.cursor.execute("select msg, nextstate, nextintent from state_mc where \
+            #intent=%s and topic=%s and state=%s and input=%s" % (intent, topic, state, ainput))
         except:
-            result = None
-        return result
+            pass
+        if result:
+            for rec in result:
+                if rec.intent == intent and rec.topic == topic and rec.state == state and rec.input == ainput:
+                    nextEntry['nextintent'] = rec.nextintent
+                    nextEntry['nextstate'] = rec.nextstate
+                    nextEntry['msg'] = rec.msg
+                    return nextEntry
+        return nextEntry
     
     def set(self, key, value):
         logger.debug('  db.set: key=%s value=%s' % (key, value))
