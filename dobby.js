@@ -6,8 +6,14 @@ const dobby_spark = require('./jslib/dobby_spark');
 const dobby_cass = require('./jslib/dobby_cass');
 const async = require('async');
 
-// token for dobby V3 wit app
-const token = "VV4QBUD2ZYMXRJBX4TWFQCSEJIWRXGXG";
+if (process.argv.length != 4) {
+  console.log('usage: node dobby.js <channel-name> <bot-email>');
+  process.exit(1);
+}
+
+const channelName = process.argv[2];
+const botEmail = process.argv[3];
+console.log("Chatbot: " + botEmail + " listening on channel: " + channelName);
 
 const sessions = {};
 
@@ -140,7 +146,7 @@ const nextEntry = (context, nextEntryCB) => {
 
 const actions = {
   say(sessionId, context, message, cb) {
-    console.log(message);
+    // console.log(message);
     // send message to spark room
     const roomId = sessions[sessionId].roomId;
     if (roomId) {
@@ -197,10 +203,10 @@ const actions = {
   nextState(sessionId, context, cb) {
     mergeContext(sessionId, context);
     sessions[sessionId].context.input = null;
-    console.log("context", context);
+    // console.log("context", context);
     nextEntry(context, function (result) {
       var next = result;
-      console.log("got next entry:", next);
+      // console.log("got next entry:", next);
       if (next.intent) {
         sessions[sessionId].context.intent = next.intent;
         sessions[sessionId].context.state = next.next;
@@ -223,7 +229,7 @@ const actions = {
 
 function processSparkMessage(err, d) {
   if (d) {
-    console.log("got message:", d);
+    // console.log("got message:", d);
     var data = JSON.parse(d);
     const sessionId = findOrCreateSession(data.roomId);
     try {
@@ -238,7 +244,7 @@ function processSparkMessage(err, d) {
           } else {
             // Our bot did everything it has to do.
             // Now it's waiting for further messages to proceed.
-            console.log('Waiting for further messages.');
+            // console.log('Waiting for further messages.');
           }
         }
       );
@@ -258,4 +264,4 @@ function processSparkMessage(err, d) {
   }
 }
 
-dobby_pull.getMessages('amit1on1', 'dobby.spark@gmail.com', processSparkMessage);
+dobby_pull.getMessages(channelName, botEmail, processSparkMessage);
