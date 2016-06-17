@@ -7,13 +7,8 @@ import logging
 import time
 # dobby modules
 import dobby_log
-import dobby_pull
-import dobby_spark
 
 logger = dobby_log.setup_logger()
-
-CHAN = 'tsouksam'
-CHAN = 'spark'
 
 class Db(object):
     def __init__(self, hostname='localhost', keyname='demo'):
@@ -26,12 +21,12 @@ class Db(object):
             logger.error(msg)
 
     def get_next(self, intent, topic, state, ainput):
-        logger.debug('  db.get_intent: intent=%s', intent)
+        """Return next state and message
+        """
+        logger.debug('  db.get_next: intent=%s', intent)
         nextEntry = {'nextintent': None, 'nextstate': None, 'msg': None}
         try:
             result = self.cursor.execute("select * from state_mc")
-            #result = self.cursor.execute("select msg, nextstate, nextintent from state_mc where \
-            #intent=%s and topic=%s and state=%s and input=%s" % (intent, topic, state, ainput))
         except:
             pass
         if result:
@@ -43,23 +38,17 @@ class Db(object):
                     return nextEntry
         return nextEntry
     
-    def set(self, key, value):
-        logger.debug('  db.set: key=%s value=%s' % (key, value))
+    def get_vocab(self, atype, atoken):
+        """Return matching keyword for a vocab type
+        """
+        logger.debug('  db.get_vocab: type=%s token=%s' % (atype, atoken))
+        result = None
         try:
-            status = self.cursor.set(key, value)
+            result = self.cursor.execute("select result from vocab where type='%s' and key='%s'" % (atype, atoken))
         except:
-            msg = 'Db.set failure: %s' % sys.exc_info()
-            logger.error(msg)
-            raise ChangelogsDbError(msg)
-        # set expiration
-        try:
-            status = self.cursor.expire(key, EXPIRATION)
-        except:
-            msg = 'Db.expire failure: %s' % sys.exc_info()
-            logger.error(msg)
-            raise ChangelogsDbError(msg)
-        return status
-
-    def get(self, key):
-        #logger.debug('  db.get: key=%s', key)
-        return self.cursor.get(key)
+            pass
+        if result:
+            for rec in result:
+                return rec.result
+        return result
+    

@@ -1,6 +1,10 @@
 """
 filename: dobby_log.py
 Description: Dobby sample app
+Arguments: 
+  - channel - webhook subscribe pulling service channel name
+  - db - cassandra hostname
+  - keyspace - cassandra keyspace
 """
 import logging
 import time
@@ -15,17 +19,19 @@ import dobby_cass
 logger = dobby_log.setup_logger()
 
 CHAN = 'tsouksam'
-#CHAN = 'spark'
+my_db = dobby_cass.Db('ucm211.cisco.com')
+my_pull = dobby_pull.Dobby_pull(CHAN)
+my_spark = dobby_spark.Dobby_spark()
 
 g_sessions = {}
 
 def merge(sessionId, context, entities, message):
     intent = entities['intent']
-    if intent:
+    if intent and (intent == 'command' or not g_sessions[sessionId]['context']['intent']):
         g_sessions[sessionId]['context']['intent'] = intent
         context['intent'] = intent
     topic = entities['topic']
-    if topic:
+    if topic and not g_sessions[sessionId]['context']['intent']:
         g_sessions[sessionId]['context']['topic'] = topic
         context['topic'] = topic
     ainput = entities['input']
@@ -61,8 +67,6 @@ def mergeContext(sessionId, context):
         context['state'] = g_sessions[sessionId]['context']['state']
     return context
 
-
-
 def nextEntry(context):
     result = my_db.get_next(context['intent'], context['topic'], context['state'], context['input'])
     if result['msg']:
@@ -94,7 +98,7 @@ def nextState(sessionId, context):
     if not nextEntryRec['nextstate']:
         cleanUp(sessionId)
     else:
-        g_sessions[sessionsId]['context']['state'] = nextEntryRec['nextstate']
+        g_sessions[sessionId]['context']['state'] = nextEntryRec['nextstate']
     say(sessionId, context, nextEntryRec['msg'])
     return context
     
@@ -103,9 +107,6 @@ actions = {
     'nextState': nextState
 }
 
-my_db = dobby_cass.Db('ucm211.cisco.com')
-my_pull = dobby_pull.Dobby_pull(CHAN)
-my_spark = dobby_spark.Dobby_spark()
 while True:
     # Continuously check for Dobby questions
     dobby_data = my_pull.pull_data()
