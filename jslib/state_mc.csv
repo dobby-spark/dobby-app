@@ -1,0 +1,24 @@
+coaching,1,1,1,what you want me to help on?,,1
+coaching,dobby,1,1,,info,
+coaching,pager,1,1,have you acknowledged the page?,,askAck
+coaching,pager,askAck,1,have you acknowledge page at pager duty website or app?,,askAck
+coaching,pager,askAck,complete,do you know what is source of the page?,,askPageSource
+coaching,pager,askAck,next,do you know what is source of the page?,,askPageSource
+coaching,pager,askAck,yes,do you know what is source of the page?,,askPageSource
+coaching,pager,askPageSource,1,"Ok, please refer to pager duty incidence for source of page",,askPageSource
+coaching,pager,askPageSource,complete,great please refer to 2AM doc to resolve page,,
+coaching,pager,askPageSource,yes,great please refer to 2AM doc to resolve page,,
+coaching,tests,1,1,what help you need with tests?,,askType
+coaching,tests,askType,1,"sorry, I do not know how to handle this!!!",,
+coaching,tests,askType,failure,"hmm, do you have session ID of the failed test?",,testsFailureAskSessionID
+coaching,tests,testsFailureAskSessionID,1,please refer to test report and find session ID from failed test log,,testsFailureAskSessionID
+coaching,tests,testsFailureAskSessionID,yes,can you find call trace and check where it failed?,,debugTestFailureAskPoF
+1,1,1,1,"Sorry, I do not understand, please try again.",,
+greeting,1,1,1,Hi there!,,
+greeting,dobby,1,1,Greetings from Dobby!,,
+info,1,1,1,what kind of information you need?,,1
+info,dobby,1,1,"Dobby can help with handling pagers, tests, auto attendant etc.!",,
+info,pager,1,1,what you looking for pager?,,1
+info,pager,1,wiki,wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service,,
+info,tests,1,1,what you looking for tests?,,1
+info,tests,1,wiki,wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures,,
