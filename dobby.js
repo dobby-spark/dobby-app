@@ -6,196 +6,8 @@ const dobby_spark = require('./jslib/dobby_spark');
 const dobby_cass = require('./jslib/dobby_cass');
 const async = require('async');
 
-const bestEntityValue = (entities, entity) => {
-  const val = entities && entities[entity] &&
-    Array.isArray(entities[entity]) &&
-    entities[entity].length > 0 &&
-    entities[entity][0].value;
-  if (!val) {
-    return null;
-  }
-  var result = null;
-  entities[entity].forEach(function (value) {
-    if (result == null || result.confidence < value.confidence) {
-      result = value;
-    }
-  });
-  return typeof result === 'object' ? result.value : result;
-};
-
 // token for dobby V3 wit app
 const token = "VV4QBUD2ZYMXRJBX4TWFQCSEJIWRXGXG";
-
-// map INTENT --> TOPIC --> STATE --> INPUT --> MSG, NEXT_STATE, NEXT_INTENT
-const msgs = {
-  '1': {
-    '1': {
-      '1': {
-        '1': {
-          'msg': 'Sorry, I do not understand, please try again.',
-          'next': null,
-        },
-      }
-    },
-  },
-  'greeting': {
-    'dobby': {
-      '1': {
-        '1': {
-          'msg': 'Greetings from Dobby!',
-          'next': null,
-        },
-      }
-    },
-    '1': {
-      '1': {
-        '1': {
-          'msg': 'Hi there!',
-          'next': null,
-        },
-      }
-    },
-  },
-  'info': {
-    '1': {
-      '1': {
-        '1': {
-          'msg': 'what kind of information you need?',
-          'next': '1',
-        },
-      }
-    },
-    'dobby': {
-      '1': {
-        '1': {
-          'msg': 'Dobby can help with handling pagers, tests, auto attendant etc.!',
-          'next': null,
-        },
-      }
-    },
-    'pager': {
-      '1': {
-        '1': {
-          'msg': 'what you looking for pager?',
-          'next': '1',
-        },
-        'wiki': {
-          'msg': 'wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service',
-          'next': null,
-          'intent': null,
-        },
-        'how-to': {
-          'msg': null,
-          'next': null,
-          'intent': 'coaching',
-        },
-      },
-    },
-    'tests': {
-      '1': {
-        '1': {
-          'msg': 'what you looking for tests?',
-          'next': '1',
-        },
-        'wiki': {
-          'msg': 'wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures',
-          'next': null,
-          'intent': null,
-        },
-        'how-to': {
-          'msg': null,
-          'next': null,
-          'intent': 'coaching',
-        },
-      },
-    },
-  },
-  'coaching': {
-    '1': {
-      '1': {
-        '1': {
-          'msg': 'what you want me to help on?',
-          'next': '1',
-        },
-      }
-    },
-    'dobby': {
-      '1': {
-        '1': {
-          'intent': 'info',
-        },
-      }
-    },
-    'pager': {
-      '1': {
-        '1': {
-          'msg': 'have you acknowledged the page?',
-          'next': 'askAck',
-        },
-      },
-      'askAck': {
-        'yes': {
-          'msg': 'do you know what is source of the page?',
-          'next': 'askPageSource',
-        },
-        '1': {
-          'msg': 'have you acknowledge page at pager duty website or app?',
-          'next': 'askAck',
-        },
-        'complete': {
-          'msg': 'do you know what is source of the page?',
-          'next': 'askPageSource',
-        },
-        'next': {
-          'msg': 'do you know what is source of the page?',
-          'next': 'askPageSource',
-        },
-      },
-      'askPageSource': {
-        'yes': {
-          'msg': 'great please refer to 2AM doc to resolve page',
-          'next': null,
-        },
-        'complete': {
-          'msg': 'great please refer to 2AM doc to resolve page',
-          'next': null,
-        },
-        '1': {
-          'msg': 'Ok, please refer to pager duty incidence for source of page',
-          'next': 'askPageSource',
-        },
-      },
-    },
-    'tests': {
-      '1': {
-        '1': {
-          'msg': 'what help you need with tests?',
-          'next': 'askType',
-        },
-      },
-      'askType': {
-        'failure': {
-          'msg': 'hmm, do you have session ID of the failed test?',
-          'next': 'testsFailureAskSessionID',
-        },
-        '1': {
-          'msg': 'sorry, I do not know how to handle this!!!',
-          'next': null,
-        },
-      },
-      'testsFailureAskSessionID': {
-        'yes': {
-          'msg': 'can you find call trace and check where it failed?',
-          'next': 'debugTestFailureAskPoF',
-        },
-        '1': {
-          'msg': 'please refer to test report and find session ID from failed test log',
-          'next': 'testsFailureAskSessionID',
-        },
-      },
-    },
-  },
-};
 
 const sessions = {};
 
@@ -379,7 +191,7 @@ const actions = {
   clean(sessionId, context, cb) {
     console.log("cleaning up state/context");
     context = {};
-    sessions[sessionId].context = {};
+    delete sessions[sessionId];
     cb(context);
   },
   nextState(sessionId, context, cb) {
@@ -396,40 +208,16 @@ const actions = {
         return;
       }
 
-      var msg = next.msg;
-      if (msg == null) {
-        msg = "sorry, can't help with " + intent + " for " + topic + "!";
-        next.next = null;
-        next.intent = null;
-      }
+      // say whatever dobby says
+      actions.say(sessionId, context, next.msg, cb);
+
+      // run state transition
       if (next.next == null) {
         actions.clean(sessionId, context, cb);
       } else {
         sessions[sessionId].context.state = next.next;
       }
-      actions.say(sessionId, context, msg, cb);
     });
-    // var next = nextEntry(context);
-    // console.log("got next entry:", next);
-    // if (next.intent) {
-    //   sessions[sessionId].context.intent = next.intent;
-    //   sessions[sessionId].context.state = next.next;
-    //   actions.nextState(sessionId, context, cb);
-    //   return;
-    // }
-
-    // var msg = next.msg;
-    // if (msg == null) {
-    //   msg = "sorry, can't help with " + intent + " for " + topic + "!";
-    //   next.next = null;
-    //   next.intent = null;
-    // }
-    // if (next.next == null) {
-    //   actions.clean(sessionId, context, cb);
-    // } else {
-    //   sessions[sessionId].context.state = next.next;
-    // }
-    // actions.say(sessionId, context, msg, cb);
   },
 };
 
@@ -456,7 +244,7 @@ function processSparkMessage(err, d) {
       );
     } catch (e) {
       console.log("parser error:", e);
-      dobby_spark.sendMessage(data.roomId, "looks like wit is down, please try later", (err, data) => {
+      dobby_spark.sendMessage(data.roomId, "could not parse response, please wake up Philip!", (err, data) => {
         if (err) {
           console.log(
             'Oops! An error occurred while forwarding the response to',
