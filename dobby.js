@@ -172,13 +172,13 @@ const actions = {
     // console.log("session context:", sessions[sessionId].context);
     // const intent = bestEntityValue(entities, 'intent');
     const intent = entities['intent'];
-    if (intent) {
+    if (intent && (intent == 'command' || !sessions[sessionId].context.intent)) {
       sessions[sessionId].context.intent = intent;
       context.intent = intent;
     }
     // const topic = bestEntityValue(entities, 'topic');
     const topic = entities['topic'];
-    if (topic) {
+    if (!sessions[sessionId].context.topic && topic) {
       sessions[sessionId].context.topic = topic;
       context.topic = topic;
     }
