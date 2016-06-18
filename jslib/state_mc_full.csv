@@ -1,33 +1,29 @@
-1,1,1,1,How can I help you?,,
-1,pager,1,1,what can I do to help with pager?,,
-1,tests,1,1,what can I do to help with tests?,,
-1,docker,1,1,what can I do to help with dockers?,,
-command,1,1,1,yes sir!,,
-coaching,1,1,1,what you want me to help on?,,
-coaching,dobby,1,1,,info,
-coaching,pager,1,1,have you acknowledged the page?,,askAck
-coaching,pager,askAck,1,"please acknowledge the page at pagerduty.com or your app",,askAck
-coaching,pager,askAck,complete,"ok, is there a JIRA to track this page?",,askJira
-coaching,pager,askJira,1,"I did not understand, have you created a JIRA for this page already?",,askJira
-coaching,pager,askJira,incomplete,"please create a JIRA for this page",,askJira
-coaching,pager,askJira,complete,"ok, do you know what is source of the page?",,askSource
-coaching,pager,askSource,1,"please refer to http://wikicentral.cisco.com/display/IPCBU/Indigo+On+Call+Support+FAQ+for+CES#IndigoOnCallSupportFAQforCES-IdentifyingSourceofPagerEvents on instructions to find source",,askSource
-coaching,pager,askSource,complete,"do you need help from another team?",,askHelp
-coaching,pager,askHelp,incomplete,"ok, great. good luck with your page! Please resolve the page when done.",,
-coaching,pager,askHelp,1,"I did not understand, do you need help with investigation?",,askHelp
-coaching,pager,askHelp,complete,"do you know who can help?",,askContact
-coaching,pager,askContact,1,"i did not understand, can you engage SRE team to get help?",,askContact
-coaching,pager,askContact,incomplete,"Engage the SRE team, by selecting I Need Help, and they'll get you hooked up to the right people: https://wiki.cisco.com/display/IPCBU/spark+call+Sre+Team",,askContact
-coaching,pager,askContact,complete,"great, good luck with your page. Please resolve the page when done.",,
-coaching,tests,askType,1,"sorry, I do not know how to handle this!!!",,
-coaching,tests,askType,failure,"hmm, do you have session ID of the failed test?",,testsFailureAskSessionID
-coaching,tests,testsFailureAskSessionID,1,please refer to test report and find session ID from failed test log,,testsFailureAskSessionID
-coaching,tests,testsFailureAskSessionID,yes,can you find call trace and check where it failed?,,debugTestFailureAskPoF
-greeting,1,1,1,Hi there!,,
-greeting,dobby,1,1,Greetings from Dobby!,,
-info,1,1,1,what kind of information you need?,,1
-info,dobby,1,1,"Dobby can help with handling pagers, tests, auto attendant etc.!",,
-info,pager,1,1,what you looking for pager?,,1
-info,pager,1,wiki,wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service,,
-info,tests,1,1,what you looking for tests?,,1
-info,tests,1,wiki,wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures,,
+111,1,1,1,1,1,How can I help you?,,
+111,1,pager,1,1,1,what can I do to help with pager?,,
+111,1,tests,1,1,1,what can I do to help with tests?,,
+111,1,docker,1,1,1,what can I do to help with dockers?,,
+111,command,1,1,1,1,yes sir!,,
+111,coaching,1,1,1,1,what you want me to help on?,,
+111,coaching,dobby,1,1,1,,info,
+111,coaching,pager,1,1,1,have you acknowledged the page?,,askAck
+111,coaching,pager,askAck,1,1,"please acknowledge the page at pagerduty.com or your app",,askAck
+111,coaching,pager,askAck,1,complete,"ok, is there a JIRA to track this page?",,askJira
+111,coaching,pager,askJira,1,1,"I did not understand, have you created a JIRA for this page already?",,askJira
+111,coaching,pager,askJira,1,incomplete,"please create a JIRA for this page",,askJira
+111,coaching,pager,askJira,1,complete,"ok, do you know what is source of the page?",,askSource
+111,coaching,pager,askSource,1,1,"please refer to http://wikicentral.cisco.com/display/IPCBU/Indigo+On+Call+Support+FAQ+for+CES#IndigoOnCallSupportFAQforCES-IdentifyingSourceofPagerEvents on instructions to find source",,askSource
+111,coaching,pager,askSource,1,complete,"do you need help from another team?",,askHelp
+111,coaching,pager,askHelp,1,incomplete,"ok, great. good luck with your page! Please resolve the page when done.",,
+111,coaching,pager,askHelp,1,1,"I did not understand, do you need help with investigation?",,askHelp
+111,coaching,pager,askHelp,1,complete,"do you know who can help?",,askContact
+111,coaching,pager,askContact,1,1,"i did not understand, can you engage SRE team to get help?",,askContact
+111,coaching,pager,askContact,1,incomplete,"Engage the SRE team, by selecting I Need Help, and they'll get you hooked up to the right people: https://wiki.cisco.com/display/IPCBU/spark+call+Sre+Team",,askContact
+111,coaching,pager,askContact,1,complete,"great, good luck with your page. Please resolve the page when done.",,
+111,greeting,1,1,1,1,Hi there!,,
+111,greeting,dobby,1,1,1,Greetings from Dobby!,,
+111,info,1,1,1,1,what kind of information you need?,,1
+111,info,dobby,1,1,1,"Dobby can help with handling pagers, tests, auto attendant etc.!",,
+111,info,pager,1,1,1,what you looking for pager?,,1
+111,info,pager,1,1,wiki,wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service,,
+111,info,tests,1,1,1,what you looking for tests?,,1
+111,info,tests,1,1,wiki,wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures,,
