@@ -41,6 +41,7 @@ const mergeContext = (sessionId, context) => {
   context.intent = sessions[sessionId].context.intent;
   context.state = sessions[sessionId].context.state;
   context.input = sessions[sessionId].context.input;
+  context.message = sessions[sessionId].context.message;
 };
 
 // const nextEntry = (intent, topic, state, input) => {
@@ -201,8 +202,8 @@ const actions = {
     if (command) {
       sessions[sessionId].context.input = command;
       context.input = command;
-      context.message = message;
     }
+    sessions[sessionId].context.message = message;
     cb(context);
   },
   error(sessionId, context, err) {
@@ -217,15 +218,49 @@ const actions = {
   },
   runCommand(sessionId, context, cb) {
     console.log("running cmd:", context);
-    if (context.command == 'vocab') {
+    var valid = false;
+    // if (context.state == 'vocab') {
+      // parse raw message to get args
+      var args = context.message.split(' ');
 
+      if (context.input == '#learn') {
+        valid = true;
+        if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
+          actions.say(sessionId, context, "use this command to train dobby with a new alias for a keyword. syntax: #learn input|topic|intent <name> <alias>", cb);
+        } else {
+          dobby_cass.addToVocab(args[1], args[2], args[3], (err, res) => {
+            if (!err) {
+              actions.say(sessionId, context, "thanks, now dobby knows " + args[2] + " is " + args[3], cb);
+            }
+            actions.clean(sessionId, context, cb);
+          });
+        }
+      } else if (context.input == "#forget") {
+        valid = true;
+        // TODO, implement validation correctly, e.g. make sure key is already listed in vocabtypes
+        // otherwise adding an unknown key here will mean nothing since state mc is not using it
+        if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
+          actions.say(sessionId, context, "use this command to train dobby to ignore an alias for a keyword. syntax: #forget input|topic|intent <name> <alias>", cb);
+        } else {
+          dobby_cass.deleteFromVocab(args[1], args[2], args[3], (err, res) => {
+            if (!err) {
+              actions.say(sessionId, context, "ok, now dobby will  ignore " + args[2] + " for " + args[3], cb);
+            }
+            actions.clean(sessionId, context, cb);
+          });
+        }
+      } else if (context.input == "#describe") {
+      }
+    // }
+    if (!valid) {
+      actions.say(sessionId, context, "command execution not yet implemented", cb);
+      actions.clean(sessionId, context, cb);
     }
-    actions.say(sessionId, context, 'command execution not yet implemented', cb);
   },
   nextState(sessionId, context, cb) {
     mergeContext(sessionId, context);
     sessions[sessionId].context.input = null;
-    // console.log("context", context);
+    // console.log("nextState context:", context);
     nextEntry(context, function (result) {
       var next = result;
       // intent switch takes place immediately

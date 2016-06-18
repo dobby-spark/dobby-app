@@ -9,7 +9,7 @@ module.exports = {
   addVocabType: addVocabType,
   delVocabType: delVocabType,
   addToVocab: addToVocab,
-  delFromVocab: delFromVocab,
+  deleteFromVocab: deleteFromVocab,
 };
 
 const botId = '111';
@@ -34,14 +34,14 @@ function delVocabType(vocab, type, cb) {
 }
 
 function addToVocab(type, name, value, cb) {
-  var query = 'INSERT INTO botvocab (botid , vtype , vname , value ) VALUES (?,?,?,?)';
-  var params = [botid, type, name, value];
+  var query = 'INSERT INTO botvocab (botid , type , name , value ) VALUES (?,?,?,?)';
+  var params = [botId, type, name, value];
   cassClient.execute(query, params, cb);  
 }
 
-function delFromVocab(type, name, value, cb) {
-  var query = 'delete FROM botvocab WHERE botid = ? AND vtype = ? AND vname =? AND value = ?';
-  var params = [botid, type, name, value];
+function deleteFromVocab(type, name, value, cb) {
+  var query = 'delete FROM botvocab WHERE botid = ? AND type = ? AND name =? AND value = ?';
+  var params = [botId, type, name, value];
   cassClient.execute(query, params, cb);  
 }
 

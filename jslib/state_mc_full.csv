@@ -19,9 +19,11 @@
 111,1,1,1,1,,ask,How can I help you?
 111,1,1,ask,1,,ask,"I did not understand you, please try again?""
 111,1,coaching,1,1,,,what you want me to help on?
-111,command,1,1,1,,1,"select from #vocab, #reset"
-111,command,1,1,#vocab,,vocab,"syntax: <#learn|#forget> <keyname> = <value>"
-111,command,1,vocab,1,,vocab,"syntax: <#learn|#forget> <keyname> = <value>"
+111,command,1,1,1,,1,"select from #learn, #forget, #reset"
+111,command,info,1,1,1,,
+111,command,1,1,#learn,command,,
+111,command,1,1,#forget,command,,
+111,command,1,vocab,1,,vocab,"syntax: #learn|#forget input|topic|intent <name> <alias>"
 111,command,1,vocab,#learn,command,,
 111,command,1,vocab,#forget,command,,
 111,command,1,1,#reset,,,"dobby reset complete"
