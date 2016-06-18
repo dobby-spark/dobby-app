@@ -9,10 +9,10 @@ module.exports = {
 // TYPES of vocab
 const vocabTypes = ['intent', 'topic', 'input', 'command'];
 
-const findVocab = (result, tokens, curr, cb) => {
+const findVocab = (botId, result, tokens, curr, cb) => {
   if (curr < vocabTypes.length) {
     // find current vocab type
-    dobby_cass.getVocab(vocabTypes[curr], (err, rows) => {
+    dobby_cass.getVocab(botId, vocabTypes[curr], (err, rows) => {
       // process rows and add to result for current vocab type
       var value = null;
       // console.log("read rows:", rows);
@@ -25,7 +25,7 @@ const findVocab = (result, tokens, curr, cb) => {
       });
       result[vocabTypes[curr]] = value;
       // get next vocab type
-      findVocab(result, tokens, curr+1, cb);
+      findVocab(botId, result, tokens, curr+1, cb);
     });
   } else {
     // we are done processing all vocab types
@@ -40,7 +40,7 @@ const trim = (str) => {
   return str;
 };
 
-function parseMessage(message, cb) {
+function parseMessage(context, message, cb) {
   // create a blank parsing result
   var result = {};
   vocabTypes.forEach((type) => {
@@ -50,6 +50,10 @@ function parseMessage(message, cb) {
   if (!message) {
     cb(result);
   } else {
+    // special handling of #dobby messages
+    if (message.indexOf('#dobby') > -1) {
+      context.botId = 'dobby';
+    }
     // tokenize the message
     var tokens = [];
     message.split(' ').forEach((t) => {
@@ -57,6 +61,6 @@ function parseMessage(message, cb) {
     });
 
     // find vocab result
-    findVocab(result, tokens, 0, cb);
+    findVocab(context.botId, result, tokens, 0, cb);
   }
 };

@@ -8,9 +8,27 @@
 111,intent,coaching,assist
 111,input,no,no
 111,input,yes,yes
-#### below are system generated, not bot specific ####
 111,intent,command,#dobby
 111,command,#reset,#reset
 111,command,#vocab,#vocab
 111,command,#learn,#learn
 111,command,#forget,#forget
+
+#### not used ####
+dobby,intent,command,#dobby
+dobby,command,#reset,#reset
+dobby,command,#vocab,#vocab
+dobby,command,#learn,#learn
+dobby,command,#forget,#forget
+
+#### below are system generated, not bot specific ####
+dobby,intent,help,info
+dobby,intent,help,help
+dobby,topic,reset,reset
+dobby,topic,vocab,vocab
+dobby,input,learn,learn
+dobby,input,forget,forget
+dobby,input,list,list
+
+#### lookup command
+select * from botvocab where botid='dobby' and type IN ( 'command', 'intent', 'topic');

@@ -29,7 +29,7 @@ const findOrCreateSession = (roomId) => {
   if (!sessionId) {
     // No session found for roomId, let's create a new one
     sessionId = new Date().toISOString();
-    sessions[sessionId] = { roomId: roomId, context: {} };
+    sessions[sessionId] = { roomId: roomId, context: {botId: '111'} };
     console.log("created new session:", sessions[sessionId]);
   }
   return sessionId;
@@ -72,7 +72,7 @@ const nextEntry = (context, nextEntryCB) => {
   async.series([
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.intent, context.state, context.input, function (err, result) {
+        dobby_cass.getState(context.botId, context.topic, context.intent, context.state, context.input, function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -86,7 +86,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.intent, context.state, '1', function (err, result) {
+        dobby_cass.getState(context.botId, context.topic, context.intent, context.state, '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -100,7 +100,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.intent, '1', '1', function (err, result) {
+        dobby_cass.getState(context.botId, context.topic, context.intent, '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -114,7 +114,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, '1', '1', '1', function (err, result) {
+        dobby_cass.getState(context.botId, context.topic, '1', '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -128,7 +128,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState('1', '1', '1', '1', '1', function (err, result) {
+        dobby_cass.getState(context.botId, '1', '1', '1', '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -226,7 +226,7 @@ const actions = {
       if (context.input == '#learn') {
         valid = true;
         if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
-          actions.say(sessionId, context, "use this command to train dobby with a new alias for a keyword. syntax: #learn input|topic|intent <name> <alias>", cb);
+          actions.say(sessionId, context, "incorrect command syntax", cb);
         } else {
           dobby_cass.addToVocab(args[1], args[2], args[3], (err, res) => {
             if (!err) {
@@ -240,7 +240,7 @@ const actions = {
         // TODO, implement validation correctly, e.g. make sure key is already listed in vocabtypes
         // otherwise adding an unknown key here will mean nothing since state mc is not using it
         if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
-          actions.say(sessionId, context, "use this command to train dobby to ignore an alias for a keyword. syntax: #forget input|topic|intent <name> <alias>", cb);
+          actions.say(sessionId, context, "incorrect command syntax", cb);
         } else {
           dobby_cass.deleteFromVocab(args[1], args[2], args[3], (err, res) => {
             if (!err) {
@@ -268,7 +268,7 @@ const actions = {
         sessions[sessionId].context.intent = next.n_intent;
         sessions[sessionId].context.state = next.n_state;
         // special handling of command intents
-        if (next.n_intent == 'command') {
+        if (next.n_intent == '#execute') {
           actions.runCommand(sessionId, context, cb)          
         } else {
           actions.nextState(sessionId, context, cb);          

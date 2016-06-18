@@ -31,3 +31,32 @@
 111,tests,1,1,1,,,what can I do to help with tests?
 111,tests,info,1,1,,1,what you looking for tests?
 111,tests,info,1,wiki,,,wiki for automation tests is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/Troubleshooting+CES+Sanity+Test+Failures
+
+### system bot state m/c
+dobby,1,1,1,1,,,"type \"#dobby help\" for list of commands"
+dobby,1,help,1,1,,,"syntax: '#dobby <command>', where <command> is vocab | reset"
+dobby,reset,1,1,1,#execute,,
+dobby,vocab,1,1,1,#execute,,
+dobby,reset,help,1,1,,,"syntax: '#dobby reset', to reset/end an active conversation"
+dobby,vocab,help,1,1,,,"syntax: '#dobby vocab <command>', where <command> is learn | forget | list"
+dobby,vocab,help,1,list,,,"syntax: '#dobby vocab list', to get a list of recognized input and their aliases"
+dobby,vocab,help,1,learn,,,"syntax: '#dobby vocab learn that <alias> is <input>', where <alias> is a new word you want to be treated as <input>"
+dobby,vocab,help,forget,1,,,"syntax: '#dobby vocab forget that <alias> is <input>', when you don't want <alias> to be recognized as <input>"
+
+### not used
+dobby,learn,info,1,1,1,,"use this command to train dobby with a new alias for a keyword. syntax: #dobby #learn input|topic|intent <name> as <alias>"
+dobby,command,1,1,#learn,command,,
+dobby,command,1,1,#forget,command,,
+dobby,command,1,vocab,1,,vocab,"syntax: #learn|#forget input|topic|intent <name> <alias>"
+dobby,command,1,vocab,#learn,command,,
+dobby,command,1,vocab,#forget,command,,
+dobby,command,1,1,#reset,,,"dobby reset complete"
+
+dobby,command,1,1,1,,1,"select from #learn, #forget, #reset"
+dobby,command,info,1,1,1,,
+dobby,command,1,1,#learn,command,,
+dobby,command,1,1,#forget,command,,
+dobby,command,1,vocab,1,,vocab,"syntax: #learn|#forget input|topic|intent <name> <alias>"
+dobby,command,1,vocab,#learn,command,,
+dobby,command,1,vocab,#forget,command,,
+dobby,command,1,1,#reset,,,"dobby reset complete"

@@ -8,9 +8,9 @@ module.exports = {
 };
 
 function runActions(actions, sessionId, message, context, cb) {
-	parser.parseMessage(message, (res) => {
+	parser.parseMessage(context, message, (res) => {
 		actions.merge(sessionId, context, res, message, (ctx) => {
-			actions.nextState(sessionId, {}, (ctx) => {
+			actions.nextState(sessionId, {botId: context.botId}, (ctx) => {
 			// no op
 			});
 		})
