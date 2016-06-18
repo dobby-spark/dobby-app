@@ -1,0 +1,53 @@
+CREATE TABLE bot_state_mc (
+    botid text,
+    topic text,
+    c_intent text,
+    c_state text,
+    in_intent text,
+    in_input text,
+    n_intent text,
+    n_state text,
+    o_msg text,
+    PRIMARY KEY ((botid, topic), c_intent, c_state, in_intent, in_input)
+)
+
+CREATE TABLE bot_state_mc_v2 (
+    botid text,
+    topic text,
+    intent text,
+    c_state text,
+    input text,
+    n_intent text,
+    n_state text,
+    o_msg text,
+    PRIMARY KEY ((botid, topic), intent, c_state, input)
+)
+
+CREATE TABLE amit.state_mc (
+    botid text,
+    topic text,
+    intent text,
+    state text,
+    input text,
+    n_intent text,
+    n_state text,
+    o_msg text,
+    PRIMARY KEY ((botid, topic), intent, state, input)
+)
+
+CREATE TABLE botvocabtypes (
+    botid text PRIMARY KEY,
+    inputs list<text>,
+    intents list<text>,
+    topics list<text>
+)
+
+
+CREATE TABLE botvocab (
+    botid text,
+    vtype text,
+    vname text,
+    value text,
+    PRIMARY KEY ((botid, vtype), vname, value)
+)
+

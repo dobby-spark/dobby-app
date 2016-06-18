@@ -45,9 +45,9 @@ function delFromVocab(type, name, value, cb) {
   cassClient.execute(query, params, cb);  
 }
 
-function getState(topic, c_intent, c_state, in_intent, in_input, cb) {
-  var query = 'SELECT o_msg, n_state, n_intent FROM bot_state_mc WHERE botid = ? AND topic=? AND c_intent=? AND c_state=? AND in_intent =? AND in_input=?';
-  var params = [botId, topic, c_intent, c_state, in_intent, in_input];
+function getState(topic, intent, state, input, cb) {
+  var query = 'SELECT o_msg, n_state, n_intent FROM state_mc WHERE botid = ? AND topic=? AND intent=? AND state=? AND input=?';
+  var params = [botId, topic, intent, state, input];
   cassClient.execute(query, params, cb);
 }
 

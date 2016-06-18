@@ -38,29 +38,25 @@ const findOrCreateSession = (roomId) => {
 const mergeContext = (sessionId, context) => {
   // console.log("merging context:", sessions[sessionId].context);
   context.topic = sessions[sessionId].context.topic;
-  context.c_intent = sessions[sessionId].context.c_intent;
-  context.c_state = sessions[sessionId].context.c_state;
-  context.in_intent = sessions[sessionId].context.in_intent;
-  context.in_input = sessions[sessionId].context.in_input;
+  context.intent = sessions[sessionId].context.intent;
+  context.state = sessions[sessionId].context.state;
+  context.input = sessions[sessionId].context.input;
 };
 
 // const nextEntry = (intent, topic, state, input) => {
 const nextEntry = (context, nextEntryCB) => {
   var next = null;
-  if (!context.c_intent) {
-    context.c_intent = '1';
+  if (!context.intent) {
+    context.intent = '1';
   }
   if (!context.topic) {
     context.topic = '1';
   }
-  if (!context.c_state) {
-    context.c_state = '1';
+  if (!context.state) {
+    context.state = '1';
   }
-  if (!context.in_intent) {
-    context.in_intent = '1';
-  }
-  if (!context.in_input) {
-    context.in_input = '1';
+  if (!context.input) {
+    context.input = '1';
   }
 
   function convertResult(row) {
@@ -75,7 +71,7 @@ const nextEntry = (context, nextEntryCB) => {
   async.series([
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.c_intent, context.c_state, context.in_intent, context.in_input, function (err, result) {
+        dobby_cass.getState(context.topic, context.intent, context.state, context.input, function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -89,7 +85,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.c_intent, context.c_state, context.in_intent, '1', function (err, result) {
+        dobby_cass.getState(context.topic, context.intent, context.state, '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -103,7 +99,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.c_intent, context.c_state, '1', '1', function (err, result) {
+        dobby_cass.getState(context.topic, context.intent, '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -117,21 +113,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.topic, context.c_intent, '1', '1', '1', function (err, result) {
-          if (err) {
-            next = null;
-          } else if (result.rows.length > 0) {
-            next = convertResult(result.rows[0]);
-          }
-          callback(err, null);
-        });
-      } else {
-        callback(null, null);
-      }
-    },
-    function (callback) {
-      if (!next) {
-        dobby_cass.getState(context.topic, '1', '1', '1', '1', function (err, result) {
+        dobby_cass.getState(context.topic, '1', '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -177,6 +159,8 @@ const actions = {
             ':',
             err
           );
+        } else {
+          dobby_spark.sendMessage(roomId, JSON.stringify(context), (err, data) => {});
         }
       });
     } else {
@@ -197,14 +181,19 @@ const actions = {
     // const intent = bestEntityValue(entities, 'intent');
     const intent = entities['intent'];
     if (intent) {
-      sessions[sessionId].context.in_intent = intent;
-      context.in_intent = intent;
+      sessions[sessionId].context.intent = intent;
+      context.intent = intent;
+      // special handling of command
+      if (intent == 'command') {
+        sessions[sessionId].context.topic = null;
+        context.topic = null;
+      }
     }
     // const input = bestEntityValue(entities, 'input');
     const input = entities['input'];
     if (input) {
-      sessions[sessionId].context.in_input = input;
-      context.in_input = input;
+      sessions[sessionId].context.input = input;
+      context.input = input;
     }
     cb(context);
   },
@@ -224,14 +213,14 @@ const actions = {
   },
   nextState(sessionId, context, cb) {
     mergeContext(sessionId, context);
-    sessions[sessionId].context.in_input = null;
+    sessions[sessionId].context.input = null;
     // console.log("context", context);
     nextEntry(context, function (result) {
       var next = result;
       // intent switch takes place immediately
       if (next.n_intent) {
-        sessions[sessionId].context.c_intent = next.n_intent;
-        sessions[sessionId].context.c_state = next.n_state;
+        sessions[sessionId].context.intent = next.n_intent;
+        sessions[sessionId].context.state = next.n_state;
         // special handling of command intents
         if (next.n_intent == 'command') {
           actions.runCommand(sessionId, context, cb)          
@@ -239,6 +228,8 @@ const actions = {
           actions.nextState(sessionId, context, cb);          
         }
         return;
+      } else {
+        context.state = next.n_state;
       }
 
       // say whatever dobby says
@@ -248,7 +239,7 @@ const actions = {
       if (next.n_state == null) {
         actions.clean(sessionId, context, cb);
       } else {
-        sessions[sessionId].context.c_state = next.n_state;
+        sessions[sessionId].context.state = next.n_state;
       }
     });
   },
