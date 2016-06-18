@@ -1,0 +1,16 @@
+111,topic,pager,page
+111,topic,pager,paged
+111,topic,pager,pager
+111,intent,info,detail
+111,intent,info,info
+111,intent,coaching,help
+111,intent,coaching,guide
+111,intent,coaching,assist
+111,input,no,no
+111,input,yes,yes
+#### below are system generated, not bot specific ####
+111,intent,command,#dobby
+111,command,#reset,#reset
+111,command,#vocab,#vocab
+111,command,#learn,#learn
+111,command,#forget,#forget

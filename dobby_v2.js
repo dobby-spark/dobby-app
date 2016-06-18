@@ -185,8 +185,9 @@ const actions = {
       context.intent = intent;
       // special handling of command
       if (intent == 'command') {
-        sessions[sessionId].context.topic = null;
-        context.topic = null;
+        sessions[sessionId].context.topic = 'command';
+        sessions[sessionId].context.intent = null;
+        context.intent = null;
       }
     }
     // const input = bestEntityValue(entities, 'input');
@@ -194,6 +195,13 @@ const actions = {
     if (input) {
       sessions[sessionId].context.input = input;
       context.input = input;
+    }
+    const command = entities['command'];
+    // special handling of command mode
+    if (command) {
+      sessions[sessionId].context.input = command;
+      context.input = command;
+      context.message = message;
     }
     cb(context);
   },
@@ -209,6 +217,9 @@ const actions = {
   },
   runCommand(sessionId, context, cb) {
     console.log("running cmd:", context);
+    if (context.command == 'vocab') {
+
+    }
     actions.say(sessionId, context, 'command execution not yet implemented', cb);
   },
   nextState(sessionId, context, cb) {

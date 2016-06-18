@@ -52,7 +52,7 @@ function getState(topic, intent, state, input, cb) {
 }
 
 function getVocab(type, cb) {
-  var query = 'SELECT vname, value FROM botvocab WHERE botid=? AND type=?';
+  var query = 'SELECT name, value FROM botvocab WHERE botid=? AND type=?';
   var params = [botId, type];
   cassClient.execute(query, params, cb);
 }

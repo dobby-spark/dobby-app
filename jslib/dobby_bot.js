@@ -1,7 +1,7 @@
 /* dobby_spark.js */
 'use strict';
 
-const parser = require('./dobby_parse_cass');
+const parser = require('./dobby_parse_v2');
 
 module.exports = {
   runActions: runActions,

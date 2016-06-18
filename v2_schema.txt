@@ -1,3 +1,33 @@
+CREATE TABLE amit.state_mc (
+    botid text,
+    topic text,
+    intent text,
+    state text,
+    input text,
+    n_intent text,
+    n_state text,
+    o_msg text,
+    PRIMARY KEY ((botid, topic), intent, state, input)
+)
+
+
+CREATE TABLE botvocabtypes (
+    botid text PRIMARY KEY,
+    inputs list<text>,
+    intents list<text>,
+    topics list<text>
+)
+
+
+CREATE TABLE amit.botvocab (
+    botid text,
+    type text,
+    name text,
+    value text,
+    PRIMARY KEY ((botid, type), name, value)
+)
+
+### not used
 CREATE TABLE bot_state_mc (
     botid text,
     topic text,
@@ -11,6 +41,7 @@ CREATE TABLE bot_state_mc (
     PRIMARY KEY ((botid, topic), c_intent, c_state, in_intent, in_input)
 )
 
+### not used
 CREATE TABLE bot_state_mc_v2 (
     botid text,
     topic text,
@@ -23,31 +54,12 @@ CREATE TABLE bot_state_mc_v2 (
     PRIMARY KEY ((botid, topic), intent, c_state, input)
 )
 
-CREATE TABLE amit.state_mc (
+### not used
+CREATE TABLE amit.botvocabv2 (
     botid text,
-    topic text,
-    intent text,
-    state text,
-    input text,
-    n_intent text,
-    n_state text,
-    o_msg text,
-    PRIMARY KEY ((botid, topic), intent, state, input)
+    type text,
+    name text,
+    key text,
+    match text,
+    PRIMARY KEY ((botid, type), name, key, match)
 )
-
-CREATE TABLE botvocabtypes (
-    botid text PRIMARY KEY,
-    inputs list<text>,
-    intents list<text>,
-    topics list<text>
-)
-
-
-CREATE TABLE botvocab (
-    botid text,
-    vtype text,
-    vname text,
-    value text,
-    PRIMARY KEY ((botid, vtype), vname, value)
-)
-

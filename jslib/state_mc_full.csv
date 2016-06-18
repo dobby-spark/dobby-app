@@ -1,28 +1,30 @@
 111,pager,1,1,1,,,what can I do to help with pager?
 111,pager,coaching,1,1,,askAck,have you acknowledged the page?
 111,pager,coaching,askAck,1,,askAck,please acknowledge the page at pagerduty.com or your app
-111,pager,coaching,askAck,complete,,askJira,"ok, is there a JIRA to track this page?"
+111,pager,coaching,askAck,yes,,askJira,"ok, is there a JIRA to track this page?"
 111,pager,coaching,askContact,1,,askContact,"i did not understand, can you engage SRE team to get help?"
-111,pager,coaching,askContact,complete,,,"great, good luck with your page. Please resolve the page when done."
-111,pager,coaching,askContact,incomplete,,askContact,"Engage the SRE team, by selecting I Need Help, and they'll get you hooked up to the right people: https://wiki.cisco.com/display/IPCBU/spark+call+Sre+Team"
+111,pager,coaching,askContact,yes,,,"great, good luck with your page. Please resolve the page when done."
+111,pager,coaching,askContact,no,,askContact,"Engage the SRE team, by selecting I Need Help, and they'll get you hooked up to the right people: https://wiki.cisco.com/display/IPCBU/spark+call+Sre+Team"
 111,pager,coaching,askHelp,1,,askHelp,"I did not understand, do you need help with investigation?"
-111,pager,coaching,askHelp,complete,,askContact,do you know who can help?
-111,pager,coaching,askHelp,incomplete,,,"ok, great. good luck with your page! Please resolve the page when done."
+111,pager,coaching,askHelp,yes,,askContact,do you know who can help?
+111,pager,coaching,askHelp,no,,,"ok, great. good luck with your page! Please resolve the page when done."
 111,pager,coaching,askJira,1,,askJira,"I did not understand, have you created a JIRA for this page already?"
-111,pager,coaching,askJira,complete,,askSource,"ok, do you know what is source of the page?"
-111,pager,coaching,askJira,incomplete,,askJira,please create a JIRA for this page
+111,pager,coaching,askJira,yes,,askSource,"ok, do you know what is source of the page?"
+111,pager,coaching,askJira,no,,askJira,please create a JIRA for this page
 111,pager,coaching,askSource,1,,askSource,please refer to http://wikicentral.cisco.com/display/IPCBU/Indigo+On+Call+Support+FAQ+for+CES#IndigoOnCallSupportFAQforCES-IdentifyingSourceofPagerEvents on instructions to find source
-111,pager,coaching,askSource,complete,,askHelp,do you need help from another team?
+111,pager,coaching,askSource,yes,,askHelp,do you need help from another team?
 111,pager,info,1,1,,1,what you looking for pager?
 111,pager,info,1,wiki,,,wiki for pager handling is @ http://cbabu-wiki.cisco.com:8080/display/HTAA/2AM+Document+CES+Auto+Attendant+Service
 111,docker,1,1,1,,,what can I do to help with dockers?
-111,dobby,coaching,1,1,info,,
-111,dobby,greeting,1,1,,,Greetings from Dobby!
-111,dobby,info,1,1,,,"Dobby can help with handling pagers, tests, auto attendant etc.!"
-111,1,1,1,1,,,How can I help you?
+111,1,1,1,1,,ask,How can I help you?
+111,1,1,ask,1,,ask,"I did not understand you, please try again?""
 111,1,coaching,1,1,,,what you want me to help on?
-111,1,command,1,1,command,,yes sir!
-111,1,greeting,1,1,,,Hi there!
+111,command,1,1,1,,1,"select from #vocab, #reset"
+111,command,1,1,#vocab,,vocab,"syntax: <#learn|#forget> <keyname> = <value>"
+111,command,1,vocab,1,,vocab,"syntax: <#learn|#forget> <keyname> = <value>"
+111,command,1,vocab,#learn,command,,
+111,command,1,vocab,#forget,command,,
+111,command,1,1,#reset,,,"dobby reset complete"
 111,1,info,1,1,,1,what kind of information you need?
 111,tests,1,1,1,,,what can I do to help with tests?
 111,tests,info,1,1,,1,what you looking for tests?
