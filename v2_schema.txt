@@ -1,4 +1,4 @@
-CREATE TABLE amit.state_mc (
+CREATE TABLE state_mc (
     botid text,
     topic text,
     intent text,
@@ -8,24 +8,24 @@ CREATE TABLE amit.state_mc (
     n_state text,
     o_msg text,
     PRIMARY KEY ((botid, topic), intent, state, input)
-)
+);
 
 
 CREATE TABLE botvocabtypes (
     botid text PRIMARY KEY,
-    inputs list<text>,
-    intents list<text>,
-    topics list<text>
-)
+    input list<text>,
+    intent list<text>,
+    topic list<text>
+);
 
 
-CREATE TABLE amit.botvocab (
+CREATE TABLE botvocab (
     botid text,
     type text,
     name text,
     value text,
     PRIMARY KEY ((botid, type), name, value)
-)
+);
 
 ### not used
 CREATE TABLE bot_state_mc (

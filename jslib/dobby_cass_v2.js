@@ -6,6 +6,7 @@ module.exports = {
   getState: getState,
   getVocab: getVocab,
   getVocabTypes: getVocabTypes,
+  getVocabNames: getVocabNames,
   addVocabType: addVocabType,
   delVocabType: delVocabType,
   addToVocab: addToVocab,
@@ -16,9 +17,15 @@ module.exports = {
 const cassClient = new cassandra.Client({ contactPoints: ['localhost'], keyspace: 'dobby', username: 'cassandra', password: 'cassandra' });
 
 function getVocabTypes(botId, cb) {
-  var query = 'SELECT inputs, intents, topics FROM botvocabtypes WHERE botid=?';
+  var query = 'SELECT input, intent, topic FROM botvocabtypes WHERE botid=?';
   var params = [botId];
   cassClient.execute(query, params, cb);  
+}
+
+function getVocabNames(botId, type, cb) {
+  var query = 'SELECT '+ type +' FROM botvocabtypes WHERE botid=?';
+  var params = [botId];
+  cassClient.execute(query, params, cb);    
 }
 
 function addVocabType(botId, vocab, newType, cb) {

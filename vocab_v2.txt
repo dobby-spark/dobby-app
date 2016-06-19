@@ -10,7 +10,7 @@
 111,input,yes,yes
 111,intent,command,#dobby
 
-#### below are system generated, not bot specific ####
+#### below are dobby command specific ####
 dobby,intent,help,info
 dobby,intent,help,help
 dobby,topic,reset,reset

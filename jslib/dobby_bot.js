@@ -19,7 +19,7 @@ function runCommand(botId, actions, sessionId, context, cb) {
         });
     } else if (context.topic == 'reset') {
       	// reset current conversation
-      actions.say(sessionId, context, "dobby vanish. *snap*", () => {
+      actions.say(sessionId, context, "*poof*", () => {
 	      actions.clean(sessionId, context, cb);
       });
     } else {
