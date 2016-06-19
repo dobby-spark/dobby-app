@@ -7,14 +7,13 @@ const dobby_cass = require('./jslib/dobby_cass_v2');
 const async = require('async');
 
 if (process.argv.length != 4) {
-  console.log('usage: node dobby.js <channel-name> <bot-email>');
+  console.log('usage: node dobby.js <channel-name> <spark-token>');
   process.exit(1);
 }
 
 const channelName = process.argv[2];
-const botEmail = process.argv[3];
-console.log("Chatbot: " + botEmail + " listening on channel: " + channelName);
-
+var botEmail = null;
+const sparkToken = process.argv[3];
 const sessions = {};
 
 const findOrCreateSession = (roomId) => {
@@ -37,11 +36,14 @@ const findOrCreateSession = (roomId) => {
 
 const mergeContext = (sessionId, context) => {
   // console.log("merging context:", sessions[sessionId].context);
-  context.topic = sessions[sessionId].context.topic;
-  context.intent = sessions[sessionId].context.intent;
-  context.state = sessions[sessionId].context.state;
-  context.input = sessions[sessionId].context.input;
-  context.message = sessions[sessionId].context.message;
+  // check if this is command, return without merging
+  if (context.botId == sessions[sessionId].context.botId) {
+    context.topic = sessions[sessionId].context.topic;
+    context.intent = sessions[sessionId].context.intent;
+    context.state = sessions[sessionId].context.state;
+    context.input = sessions[sessionId].context.input;
+    context.message = sessions[sessionId].context.message;
+  }
 };
 
 // const nextEntry = (intent, topic, state, input) => {
@@ -128,7 +130,7 @@ const nextEntry = (context, nextEntryCB) => {
     },
     function (callback) {
       if (!next) {
-        dobby_cass.getState(context.botId, '1', '1', '1', '1', '1', function (err, result) {
+        dobby_cass.getState(context.botId, '1', '1', '1', '1', function (err, result) {
           if (err) {
             next = null;
           } else if (result.rows.length > 0) {
@@ -152,7 +154,7 @@ const actions = {
     const roomId = sessions[sessionId].roomId;
     if (roomId) {
       // we have a room for this sesssion, send message there
-      dobby_spark.sendMessage(roomId, message, (err, data) => {
+      dobby_spark.sendMessage(sparkToken, roomId, message, (err, data) => {
         if (err) {
           console.log(
             'Oops! An error occurred while forwarding the response to',
@@ -161,7 +163,7 @@ const actions = {
             err
           );
         } else {
-          dobby_spark.sendMessage(roomId, JSON.stringify(context), (err, data) => {});
+          dobby_spark.sendMessage(sparkToken, roomId, JSON.stringify(context), (err, data) => {});
         }
       });
     } else {
@@ -273,7 +275,7 @@ function processSparkMessage(err, d) {
       );
     } catch (e) {
       console.log("parser error:", e);
-      dobby_spark.sendMessage(data.roomId, "could not parse response, please wake up Philip!", (err, data) => {
+      dobby_spark.sendMessage(sparkToken, data.roomId, "could not parse response, please wake up Philip!", (err, data) => {
         if (err) {
           console.log(
             'Oops! An error occurred while forwarding the response to',
@@ -287,4 +289,13 @@ function processSparkMessage(err, d) {
   }
 }
 
-dobby_pull.getMessages(channelName, botEmail, processSparkMessage);
+dobby_spark.whoAmI(sparkToken, (me) => {
+  if (me == null) {
+    console.log('failed to get identity with spark token: ', process.argv[3]);
+    process.exit(1);
+  } else {
+    console.log("my identity: ", me);
+    console.log("Chatbot: " + me.name + " listening on channel: " + channelName);
+    botEmail = me.email;
+    dobby_pull.getMessages(sparkToken, channelName, botEmail, processSparkMessage);  }
+});

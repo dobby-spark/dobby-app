@@ -13,7 +13,7 @@ var myChannel;
 
 var myEmail;
 
-function getMessages(channel, email, cb) {
+function getMessages(token, channel, email, cb) {
   // console.log('polling for messages...');
   const opts = {};
   if (!myChannel) {
@@ -25,12 +25,12 @@ function getMessages(channel, email, cb) {
   request.get('https://dobby-spark.appspot.com/v1/poll/' + channel, function (err, resp, data) {
     // console.log('finished polling');
     if (cb) {
-      poll(myEmail, err || data.error && data.error.message, data, cb);
+      poll(token, myEmail, err || data.error && data.error.message, data, cb);
     }
   });
 };
 
-function poll(myEmail, err, d, processSparkMessageCB) {
+function poll(token, myEmail, err, d, processSparkMessageCB) {
   if (err) {
     console.log(
       'Oops! An error occurred while fetching messages:',
@@ -48,12 +48,12 @@ function poll(myEmail, err, d, processSparkMessageCB) {
           // console.log("discarding my own message");
         } else {
           // fetch the message from spark
-          dobby_spark.fetchMessage(value.data.id, processSparkMessageCB);
+          dobby_spark.fetchMessage(token, value.data.id, processSparkMessageCB);
         }
       });
     }
   }
   // sleep
   sleep.sleep(1);
-  getMessages(myChannel, myEmail, processSparkMessageCB);
+  getMessages(token, myChannel, myEmail, processSparkMessageCB);
 };

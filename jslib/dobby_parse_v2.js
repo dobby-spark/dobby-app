@@ -54,6 +54,9 @@ function parseMessage(context, message, cb) {
     // special handling of #dobby messages
     if (message.indexOf('#dobby') > -1) {
       context.botId = 'dobby';
+      context.topic = null;
+      context.intent = null;
+      context.state = null;
     }
     // tokenize the message
     var tokens = [];
