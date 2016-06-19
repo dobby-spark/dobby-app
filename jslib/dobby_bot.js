@@ -8,13 +8,13 @@ module.exports = {
   runCommand: runCommand,
 };
 
-function runCommand(botId, sessionId, actions, context, cb) {
+function runCommand(botId, actions, sessionId, context, cb) {
     console.log("running cmd:", context);
     if (context.topic == 'vocab') {
 		// delegate vocab command to parser
         parser.vocabCommand(botId, context, (res) => {
         	actions.say(sessionId, context, res, () => {
-        		actions.clean(sessionId, context, (ctx) => {});
+        		// actions.clean(sessionId, context, (ctx) => {});
         	})
         });
     } else if (context.topic == 'reset') {
@@ -24,7 +24,7 @@ function runCommand(botId, sessionId, actions, context, cb) {
       });
     } else {
       actions.say(sessionId, context, "dobby do not understand command type " + context.topic, () => {
-	      actions.clean(sessionId, context, cb);
+	      // actions.clean(sessionId, context, cb);
       });
     }
 }

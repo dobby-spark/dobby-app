@@ -243,13 +243,16 @@ const actions = {
       var next = result;
       // intent switch takes place immediately
       if (next.n_intent) {
-        sessions[sessionId].context.intent = next.n_intent;
-        sessions[sessionId].context.state = next.n_state;
+        // sessions[sessionId].context.intent = next.n_intent;
+        // sessions[sessionId].context.state = next.n_state;
+        context.intent = next.n_intent;
+        context.state = next.n_state;
         // special handling of command intents
         if (next.n_intent == '#execute') {
-          dobby_bot.runCommand(sessions[sessionId].context.botId, sessionId, actions, context, cb);
+          dobby_bot.runCommand(sessions[sessionId].context.botId, actions, sessionId, context, cb);
         } else {
-          actions.nextState(sessions[sessionId].context.botId, sessionId, actions, context, cb);
+          // actions.nextState(sessions[sessionId].context.botId, sessionId, actions, context, cb);
+          actions.nextState(sessionId, context, cb);
         }
         return;
       } else {
