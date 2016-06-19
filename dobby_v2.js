@@ -216,47 +216,6 @@ const actions = {
     delete sessions[sessionId];
     cb(context);
   },
-  runCommand(sessionId, context, cb) {
-    console.log("running cmd:", context);
-    var valid = false;
-    // if (context.state == 'vocab') {
-      // parse raw message to get args
-      var args = context.message.split(' ');
-
-      if (context.input == '#learn') {
-        valid = true;
-        if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
-          actions.say(sessionId, context, "incorrect command syntax", cb);
-        } else {
-          dobby_cass.addToVocab(args[1], args[2], args[3], (err, res) => {
-            if (!err) {
-              actions.say(sessionId, context, "thanks, now dobby knows " + args[2] + " is " + args[3], cb);
-            }
-            actions.clean(sessionId, context, cb);
-          });
-        }
-      } else if (context.input == "#forget") {
-        valid = true;
-        // TODO, implement validation correctly, e.g. make sure key is already listed in vocabtypes
-        // otherwise adding an unknown key here will mean nothing since state mc is not using it
-        if (args.length != 4 || ['input', 'topic', 'intent'].indexOf(arg[1].toLowerCase()) == -1 ) {
-          actions.say(sessionId, context, "incorrect command syntax", cb);
-        } else {
-          dobby_cass.deleteFromVocab(args[1], args[2], args[3], (err, res) => {
-            if (!err) {
-              actions.say(sessionId, context, "ok, now dobby will  ignore " + args[2] + " for " + args[3], cb);
-            }
-            actions.clean(sessionId, context, cb);
-          });
-        }
-      } else if (context.input == "#describe") {
-      }
-    // }
-    if (!valid) {
-      actions.say(sessionId, context, "command execution not yet implemented", cb);
-      actions.clean(sessionId, context, cb);
-    }
-  },
   nextState(sessionId, context, cb) {
     mergeContext(sessionId, context);
     sessions[sessionId].context.input = null;
@@ -269,9 +228,9 @@ const actions = {
         sessions[sessionId].context.state = next.n_state;
         // special handling of command intents
         if (next.n_intent == '#execute') {
-          actions.runCommand(sessionId, context, cb)          
+          dobby_bot.runCommand(sessions[sessionId].context.botId, sessionId, actions, context, cb);
         } else {
-          actions.nextState(sessionId, context, cb);          
+          actions.nextState(sessions[sessionId].context.botId, sessionId, actions, context, cb);
         }
         return;
       } else {

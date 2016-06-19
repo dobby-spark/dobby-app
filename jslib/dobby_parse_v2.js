@@ -4,10 +4,11 @@ const dobby_cass = require('./dobby_cass_v2');
 
 module.exports = {
   parseMessage: parseMessage,
+  vocabCommand: vocabCommand,
 };
 
 // TYPES of vocab
-const vocabTypes = ['intent', 'topic', 'input', 'command'];
+const vocabTypes = ['intent', 'topic', 'input'];
 
 const findVocab = (botId, result, tokens, curr, cb) => {
   if (curr < vocabTypes.length) {
@@ -64,3 +65,19 @@ function parseMessage(context, message, cb) {
     findVocab(context.botId, result, tokens, 0, cb);
   }
 };
+
+function vocabCommand(botId, context, cb) {
+  var args = context.message.split(' ');
+  if (context.input == 'list') {
+    // list all input types
+    cb('dobby understand vocab command ' + context.input);
+  } else if (context.input == 'learn') {
+    // learn a new vocab word
+    cb('dobby understand vocab command ' + context.input);
+  } else if (context.input == 'forget') {
+    // un-learn a vocab word
+    cb('dobby understand vocab command ' + context.input);
+  } else {
+    cb('dobby do not understand command "' + context.message.replace('#dobby ', '') + '"');
+  }
+}
