@@ -38,11 +38,32 @@ const mergeContext = (sessionId, context) => {
   // console.log("merging context:", sessions[sessionId].context);
   // check if this is command, return without merging
   if (context.botId == sessions[sessionId].context.botId) {
-    context.topic = sessions[sessionId].context.topic;
-    context.intent = sessions[sessionId].context.intent;
-    context.state = sessions[sessionId].context.state;
-    context.input = sessions[sessionId].context.input;
-    context.message = sessions[sessionId].context.message;
+    // context.topic = sessions[sessionId].context.topic;
+    // context.intent = sessions[sessionId].context.intent;
+    // context.state = sessions[sessionId].context.state;
+    // context.input = sessions[sessionId].context.input;
+    // context.message = sessions[sessionId].context.message;
+    if (context.topic) {
+      sessions[sessionId].context.topic = context.topic;
+    } else {
+      context.topic = sessions[sessionId].context.topic;
+    }
+    if (context.intent) {
+      sessions[sessionId].context.intent = context.intent;
+    } else {
+      context.intent = sessions[sessionId].context.intent;
+    }
+    if (context.state) {
+      sessions[sessionId].context.state = context.state;
+    } else {
+      context.state = sessions[sessionId].context.state;
+    }
+    if (context.input) {
+      sessions[sessionId].context.input = context.input;
+    } else {
+      context.input = sessions[sessionId].context.input;
+    }
+    sessions[sessionId].context.message = context.message;
   }
 };
 
@@ -177,35 +198,31 @@ const actions = {
     // console.log("session context:", sessions[sessionId].context);
     // const topic = bestEntityValue(entities, 'topic');
     const topic = entities['topic'];
-    if (!sessions[sessionId].context.topic && topic) {
-      sessions[sessionId].context.topic = topic;
+    if (topic) {
+    // if (!sessions[sessionId].context.topic && topic) {
+      // sessions[sessionId].context.topic = topic;
       context.topic = topic;
     }
     // const intent = bestEntityValue(entities, 'intent');
     const intent = entities['intent'];
     if (intent) {
-      sessions[sessionId].context.intent = intent;
+      // sessions[sessionId].context.intent = intent;
       context.intent = intent;
-      // special handling of command
-      if (intent == 'command') {
-        sessions[sessionId].context.topic = 'command';
-        sessions[sessionId].context.intent = null;
-        context.intent = null;
-      }
+      // // special handling of command
+      // if (intent == 'command') {
+      //   sessions[sessionId].context.topic = 'command';
+      //   sessions[sessionId].context.intent = null;
+      //   context.intent = null;
+      // }
     }
     // const input = bestEntityValue(entities, 'input');
     const input = entities['input'];
     if (input) {
-      sessions[sessionId].context.input = input;
+      // sessions[sessionId].context.input = input;
       context.input = input;
     }
-    const command = entities['command'];
-    // special handling of command mode
-    if (command) {
-      sessions[sessionId].context.input = command;
-      context.input = command;
-    }
-    sessions[sessionId].context.message = message;
+    // sessions[sessionId].context.message = message;
+    context.message = message;
     cb(context);
   },
   error(sessionId, context, err) {
@@ -262,7 +279,8 @@ function processSparkMessage(err, d) {
         actions,
         sessionId, // the user's current session
         data['text'], // the user's message 
-        sessions[sessionId].context, // the user's current session state
+        // sessions[sessionId].context, // the user's current session state
+        JSON.parse(JSON.stringify(sessions[sessionId].context)), // the user's current session state
         (error, context) => {
           if (error) {
             console.log('Oops! Got an error from Wit:', error);

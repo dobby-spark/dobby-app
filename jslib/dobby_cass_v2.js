@@ -12,10 +12,11 @@ module.exports = {
   deleteFromVocab: deleteFromVocab,
 };
 
-const cassClient = new cassandra.Client({ contactPoints: ['ucm211.cisco.com'], keyspace: 'amit' });
+//const cassClient = new cassandra.Client({ contactPoints: ['ucm211.cisco.com'], keyspace: 'amit' });
+const cassClient = new cassandra.Client({ contactPoints: ['localhost'], keyspace: 'dobby', username: 'cassandra', password: 'cassandra' });
 
 function getVocabTypes(botId, cb) {
-  var query = 'SELECT inputs, intents, topices FROM botvocabtypes WHERE botid=?';
+  var query = 'SELECT inputs, intents, topics FROM botvocabtypes WHERE botid=?';
   var params = [botId];
   cassClient.execute(query, params, cb);  
 }

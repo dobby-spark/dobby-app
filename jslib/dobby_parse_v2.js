@@ -72,8 +72,15 @@ function parseMessage(context, message, cb) {
 function vocabCommand(botId, context, cb) {
   var args = context.message.split(' ');
   if (context.input == 'list') {
-    // list all input types
-    cb('dobby understand vocab command ' + context.input);
+    // list all vocab type names
+    dobby_cass.getVocabTypes(botId, (err, res) => {
+      if (err) {
+        console.log('vocab types read error', err);
+        cb('sorry, dobby cannot find vocab!');
+      } else {
+        cb(JSON.stringify(res.rows));
+      }
+    });
   } else if (context.input == 'learn') {
     // learn a new vocab word
     cb('dobby understand vocab command ' + context.input);

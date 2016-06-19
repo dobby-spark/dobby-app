@@ -9,17 +9,6 @@
 111,input,no,no
 111,input,yes,yes
 111,intent,command,#dobby
-111,command,#reset,#reset
-111,command,#vocab,#vocab
-111,command,#learn,#learn
-111,command,#forget,#forget
-
-#### not used ####
-dobby,intent,command,#dobby
-dobby,command,#reset,#reset
-dobby,command,#vocab,#vocab
-dobby,command,#learn,#learn
-dobby,command,#forget,#forget
 
 #### below are system generated, not bot specific ####
 dobby,intent,help,info
