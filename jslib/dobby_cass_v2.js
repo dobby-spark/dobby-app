@@ -36,8 +36,8 @@ function getVocabNames(botId, type, cb) {
 }
 
 function addVocabType(botId, vocab, newType, cb) {
-  var query = 'UPDATE botvocabtypes SET ? = ? + [?] where botid=?';
-  var params = [vocab, vocab, newType, botId];
+  var query = 'UPDATE botvocabtypes SET '+ vocab +' = ' + vocab + " + ['" + newType + "'] where botid=?";
+  var params = [botId];
   cassClient.execute(query, params, cb);  
 }
 
