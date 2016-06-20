@@ -5,6 +5,7 @@ const dobby_cass = require('./dobby_cass_v2');
 module.exports = {
   parseMessage: parseMessage,
   vocabCommand: vocabCommand,
+  typeCommand: typeCommand,
 };
 
 // TYPES of vocab
@@ -32,6 +33,24 @@ const findVocab = (botId, result, tokens, curr, cb) => {
     // we are done processing all vocab types
     cb(result);
   }
+}
+
+function addToType(botId, type, name, cb) {
+  // add new type name to bot's vocab type
+  dobby_cass.addVocabType(botId, type, name, (err, res) => {
+    if (!err) {
+      // add new type name to bot's vocab input
+      dobby_cass.addToVocab(botId, type, name, name, (err, res) => {
+        if (!err) {
+          cb('dobby added new ' + name + ' into ' + type);
+        } else {
+          cb('dobby failed to add new ' + name);
+        }
+      })
+    } else {
+      cb('dobby failed to add new ' + name);
+    }
+  });
 }
 
 function addToVocab(botId, name, alias, curr, didUpdate, cb) {
@@ -115,10 +134,35 @@ function parseMessage(context, message, cb) {
   }
 };
 
-function vocabCommand(botId, context, cb) {
+function typeCommand(botId, context, cb) {
   if (context.input == 'list') {
     // list all vocab type names
-    dobby_cass.getVocabTypes(botId, (err, res) => {
+    dobby_cass.getVocabTypes(botId, context.topic, (err, res) => {
+      if (err) {
+        console.log('vocab types read error', err);
+        cb('sorry, dobby cannot find vocab!');
+      } else {
+        cb(JSON.stringify(res.rows));
+      }
+    });
+  } else if (context.input == 'add') {
+    // add a new vocab type
+    // syntax: #dobby add new <type> to <context.topic>
+    var args = context.message.toLowerCase().replace('#dobby ', '').replace('add ','').replace('new ','').split(' to ');
+    // add new alias to each vocab type that has specified input
+    args.length != 2 ? args = null : addToType(botId, args[1].trim(), args[0].trim(), cb);
+    if (!args) {
+      cb('dobby do not understand, please use "#dobby ' + context.topic + ' help" for syntax');
+    }
+  } else {
+    cb('dobby do not understand command "' + context.message.replace('#dobby ', '') + '"');
+  }
+}
+
+function vocabCommand(botId, context, cb) {
+  if (context.input == 'list') {
+    // list all vocab input names
+    dobby_cass.getVocabInputs(botId, (err, res) => {
       if (err) {
         console.log('vocab types read error', err);
         cb('sorry, dobby cannot find vocab!');

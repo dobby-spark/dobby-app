@@ -17,6 +17,13 @@ function runCommand(botId, actions, sessionId, context, cb) {
         		// actions.clean(sessionId, context, (ctx) => {});
         	})
         });
+    } else if (['topic','intent','input'].indexOf(context.topic) > -1) {
+      	// delegate type modification commands to parser
+        parser.typeCommand(botId, context, (res) => {
+        	actions.say(sessionId, context, res, () => {
+        		// actions.clean(sessionId, context, (ctx) => {});
+        	})
+        });
     } else if (context.topic == 'reset') {
       	// reset current conversation
       actions.say(sessionId, context, "*poof*", () => {

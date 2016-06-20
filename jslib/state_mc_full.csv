@@ -34,7 +34,7 @@
 
 ### system bot state m/c
 dobby,1,1,1,1,,,"type \"#dobby help\" for list of commands"
-dobby,1,help,1,1,,,"syntax: '#dobby <command>', where <command> is vocab | reset"
+dobby,1,help,1,1,,,"syntax: '#dobby <command>', where <command> is vocab | reset | topic"
 dobby,reset,1,1,1,#execute,,
 dobby,vocab,1,1,1,#execute,,
 dobby,reset,help,1,1,,,"syntax: '#dobby reset', to reset/end an active conversation"
@@ -42,6 +42,25 @@ dobby,vocab,help,1,1,,,"syntax: '#dobby vocab <command>', where <command> is lea
 dobby,vocab,help,1,list,,,"syntax: '#dobby vocab list', to get a list of recognized input and their aliases"
 dobby,vocab,help,1,learn,,,"syntax: '#dobby vocab learn that <alias> is <input>', where <alias> is a new word you want to be treated as <input>"
 dobby,vocab,help,forget,1,,,"syntax: '#dobby vocab forget that <alias> is <input>', when you don't want <alias> to be recognized as <input>"
+
+### state m/c to add topic, intent and input
+dobby,topic,1,1,1,#execute,,
+dobby,topic,help,1,1,,,"syntax: '#dobby topic <command>', where <command> is add | list"
+dobby,topic,help,1,add,,,"syntax: '#dobby add new <type> to topic', where type is the new topic to add"
+dobby,intent,1,1,1,#execute,,
+dobby,intent,help,1,1,,,"syntax: '#dobby intent <command>', where <command> is add | list"
+dobby,intent,help,1,add,,,"syntax: '#dobby add new <type> to intent', where type is the new intent to add"
+dobby,input,1,1,1,#execute,,
+dobby,input,help,1,1,,,"syntax: '#dobby input <command>', where <command> is add | list"
+dobby,input,help,1,add,,,"syntax: '#dobby add new <type> to input', where type is the new input to add"
+\.
+
+### not using compressed state m/c to add topic, intent and input
+dobby,type,1,1,1,#execute,,
+dobby,type,help,1,1,,,"syntax: '#dobby type <command>', where <command> is add | list"
+dobby,type,help,1,add,,,"syntax: '#dobby type add <keyword> as <type>', where keyword is the new topic to add and type is either 'topic' or 'intent' or 'input'"
+\.
+
 
 ### not used
 dobby,learn,info,1,1,1,,"use this command to train dobby with a new alias for a keyword. syntax: #dobby #learn input|topic|intent <name> as <alias>"
