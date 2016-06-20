@@ -6,6 +6,7 @@ module.exports = {
   parseMessage: parseMessage,
   vocabCommand: vocabCommand,
   typeCommand: typeCommand,
+  logicCommand: logicCommand,
 };
 
 // TYPES of vocab
@@ -146,6 +147,79 @@ function parseMessage(context, message, cb) {
     findVocab(context.botId, result, tokens, 0, cb);
   }
 };
+
+function logicCommand(botId, context, cb) {
+  // syntax: #dobby #when
+  //  [ topic is <topic>] and
+  //  [intent is <intent>] and
+  //  [state is <state>] and
+  //  [input is <input>] then
+  //  [transition to [intent]/[<state>]] and 
+  //  [say <phrase>]
+
+  var args = context.message.replace(/#/g, '').replace('dobby', '').replace('when ', '').split(' then ');
+  if (args.length != 2) {
+    cb('command syntax not correct, please refer to #dobby #help #when');
+  } else {
+    var conditions = args[0].split(' and ');
+    var actions = args[1].split(' and ');
+
+    // parse input conditions
+    var input = {};
+    var isValid = true;
+    conditions.forEach((condition) => {
+      if (condition.indexOf('topic ') > -1) {
+        // this is a topic condition
+        console.log('adding topic condition:', condition);
+        input.topic = condition.split(' is ')[1];
+      } else if (condition.indexOf('intent ') > -1) {
+        // this is an intent condition
+        console.log('adding intent condition:', condition);
+        input.intent = condition.split(' is ')[1];
+      } else if (condition.indexOf('state ') > -1) {
+        // this is current state condition
+        console.log('adding state condition:', condition);
+        input.state = condition.split(' is ')[1];
+      } else if (condition.indexOf('input ') > -1) {
+        // this is an specified input condition
+        console.log('adding input condition:', condition);
+        input.input = condition.split(' is ')[1];
+      } else {
+        isValid = false;
+        console.log('unsupported condition:', condition);
+        cb('incorrect condition: ' + condition);
+      }
+    });
+
+    // parse output actions
+    var output = {};
+    actions.forEach((action) => {
+      if (action.indexOf('transition ') > -1) {
+        // this is a topic condition
+        console.log('adding transition action:', action);
+        // var transition = action.replace('transition ', '').split('/');
+        var transition = action.split(' to ')[1].split('/');
+        transition[0].length && (output.intent =  transition[0].trim());
+        transition[1].length && (output.state = transition[1].trim());
+      } else if (action.indexOf('say ') > -1) {
+        // this is an intent condition
+        console.log('adding say action:', action);
+        output.say = action.replace('say ', '');
+      } else {
+        isValid = false;
+        console.log('unsupported action:', action);
+        cb('incorrect action: ' + action);
+      }
+    });
+
+    if (!isValid) {
+      cb('failed to process command');
+    } else {
+      cb(JSON.stringify(input) + ' ==> ' + JSON.stringify(output));
+    }
+  }
+}
+
 
 function typeCommand(botId, context, cb) {
   if (context.input == 'list') {

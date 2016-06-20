@@ -24,6 +24,13 @@ function runCommand(botId, actions, sessionId, context, cb) {
         		// actions.clean(sessionId, context, (ctx) => {});
         	})
         });
+    } else if (context.topic == 'logic') {
+      	// delegate logic creation to parser
+        parser.logicCommand(botId, context, (res) => {
+        	actions.say(sessionId, context, res, () => {
+        		// actions.clean(sessionId, context, (ctx) => {});
+        	})
+        });
     } else if (context.topic == 'reset') {
       	// reset current conversation
       actions.say(sessionId, context, "*poof*", () => {
