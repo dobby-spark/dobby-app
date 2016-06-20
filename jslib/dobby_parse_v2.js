@@ -148,6 +148,16 @@ function parseMessage(context, message, cb) {
   }
 };
 
+function createLogic(botId, input, output, context, cb) {
+  dobby_cass.createLogic(botId, input, output, (err, res) => {
+    if (err) {
+      cb("failed to create transition in DB");
+    } else {
+      cb('created: ' + JSON.stringify(input) + ' ==> ' + JSON.stringify(output));
+    }
+  });
+}
+
 function logicCommand(botId, context, cb) {
   // syntax: #dobby #when
   //  [ topic is <topic>] and
@@ -165,7 +175,12 @@ function logicCommand(botId, context, cb) {
     var actions = args[1].split(' and ');
 
     // parse input conditions
-    var input = {};
+    var input = {
+      topic: '1',
+      intent: '1',
+      state: '1',
+      input: '1',
+    };
     var isValid = true;
     conditions.forEach((condition) => {
       if (condition.indexOf('topic ') > -1) {
@@ -215,7 +230,7 @@ function logicCommand(botId, context, cb) {
     if (!isValid) {
       cb('failed to process command');
     } else {
-      cb(JSON.stringify(input) + ' ==> ' + JSON.stringify(output));
+      createLogic(botId, input, output, context, cb);
     }
   }
 }

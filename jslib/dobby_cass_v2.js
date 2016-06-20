@@ -4,6 +4,7 @@ const cassandra = require('cassandra-driver');
 
 module.exports = {
   getState: getState,
+  createLogic: createLogic,
   getVocab: getVocab,
   getVocabTypes: getVocabTypes,
   getVocabInputs: getVocabInputs,
@@ -56,6 +57,12 @@ function addToVocab(botId, type, name, value, cb) {
 function deleteFromVocab(botId, type, name, value, cb) {
   var query = 'delete FROM botvocab WHERE botid = ? AND type = ? AND name =? AND value = ?';
   var params = [botId, type, name, value];
+  cassClient.execute(query, params, cb);  
+}
+
+function createLogic(botId, input, output, cb) {
+  var query = 'INSERT INTO state_mc (botid, topic , intent , state , input , n_intent , n_state , o_msg ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  var params = [botId, input.topic, input.intent, input.state, input.input, output.intent, output.state, output.say];
   cassClient.execute(query, params, cb);  
 }
 
