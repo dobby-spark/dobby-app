@@ -153,6 +153,30 @@ function createLogic(botId, input, output, context, cb) {
     if (err) {
       cb("failed to create transition in DB");
     } else {
+      // add the terms into vocabtypes
+      var topics = [];
+      var intents = [];
+      var inputs = [];
+      input.topic && input.topic != '1' && topics.push(input.topic);
+      input.intent && input.intent != '1' && intents.push(input.intent);
+      output.intent && output.intent != '1' && intents.push(output.intent);
+      input.input && input.input != '1' && inputs.push(input.input);
+
+      topics.length && topics.forEach((topic) => {
+        addToType(botId, 'topic', topic, (msg) => {
+          cb(msg);
+        });
+      });
+      intents.length && intents.forEach((intent) => {
+        addToType(botId, 'intent', intent, (msg) => {
+          cb(msg);
+        });
+      });
+      inputs.length && inputs.forEach((input) => {
+        addToType(botId, 'input', input, (msg) => {
+          cb(msg);
+        });
+      });
       cb('created: ' + JSON.stringify(input) + ' ==> ' + JSON.stringify(output));
     }
   });
@@ -169,7 +193,7 @@ function showLogic(botId, cb) {
           ' and intent is ' + row.intent +
           ' and state is ' + row.state + 
           ' and input is ' + row.input + ' ==> ' +
-          'new intent/state ' + row.n_intent + '/' + row.n_state +
+          'next intent/state ' + row.n_intent + '/' + row.n_state +
           ' and say "' + row.o_msg + '"\n';
         });
       cb(states);
@@ -204,19 +228,19 @@ function logicCreateCommand(botId, context, cb) {
     conditions.forEach((condition) => {
       if (condition.indexOf('topic ') > -1) {
         // this is a topic condition
-        console.log('adding topic condition:', condition);
+        console.log('adding condition:', condition);
         input.topic = condition.split(' is ')[1];
       } else if (condition.indexOf('intent ') > -1) {
         // this is an intent condition
-        console.log('adding intent condition:', condition);
+        console.log('adding condition:', condition);
         input.intent = condition.split(' is ')[1];
       } else if (condition.indexOf('state ') > -1) {
         // this is current state condition
-        console.log('adding state condition:', condition);
+        console.log('adding condition:', condition);
         input.state = condition.split(' is ')[1];
       } else if (condition.indexOf('input ') > -1) {
         // this is an specified input condition
-        console.log('adding input condition:', condition);
+        console.log('adding condition:', condition);
         input.input = condition.split(' is ')[1];
       } else {
         isValid = false;
@@ -234,10 +258,10 @@ function logicCreateCommand(botId, context, cb) {
         // var transition = action.replace('transition ', '').split('/');
         var transition = action.split(' to ')[1].split('/');
         transition[0].length && (output.intent =  transition[0].trim());
-        transition[1].length && (output.state = transition[1].trim());
+        transition[1] && transition[1].length && (output.state = transition[1].trim());
       } else if (action.indexOf('say ') > -1) {
         // this is an intent condition
-        console.log('adding say action:', action);
+        console.log('adding action:', action);
         output.say = action.replace('say ', '');
       } else {
         isValid = false;
