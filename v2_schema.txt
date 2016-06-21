@@ -7,9 +7,21 @@ CREATE TABLE state_mc (
     n_intent text,
     n_state text,
     o_msg text,
-    PRIMARY KEY ((botid, topic), intent, state, input)
+    PRIMARY KEY ((botid), topic, intent, state, input)
 );
 
+### replaced this with above, to get all states for a given botid
+CREATE TABLE state_mc (
+    botid text,
+    topic text,
+    intent text,
+    state text,
+    input text,
+    n_intent text,
+    n_state text,
+    o_msg text,
+    PRIMARY KEY ((botid, topic), intent, state, input)
+);
 
 CREATE TABLE botvocabtypes (
     botid text PRIMARY KEY,
