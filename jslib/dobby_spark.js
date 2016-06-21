@@ -57,7 +57,7 @@ function whoAmI(token, cb) {
       'Authorization': 'Bearer ' + token,
     }}, (err, resp, data) => {
       if (cb) {
-        if (err || data.error && data.error.message) {
+        if (err || (data.error && data.error.message) || !data.length) {
           cb(null);
         } else {
           const me = JSON.parse(data);

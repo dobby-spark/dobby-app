@@ -252,7 +252,7 @@ function typeCommand(botId, context, cb) {
     // syntax: #dobby add new <type> to <context.topic>
     var args = context.message.toLowerCase().replace(/#/g,'').replace('dobby ', '').replace('add ','').replace('new ','').split(' to ');
     // add new alias to each vocab type that has specified input
-    args.length != 2 ? args = null : addToType(botId, context.topic, args[0].trim(), cb);
+    args.length != 2 ? args = null : addToType(botId, context.topic, args[0].replace(context.topic, '').trim(), cb);
     if (!args) {
       cb('dobby do not understand, please use "#dobby #' + context.topic + ' #help" for syntax');
     }

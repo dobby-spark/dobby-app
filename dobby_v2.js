@@ -16,11 +16,11 @@ var botEmail = null;
 const sparkToken = process.argv[3];
 const sessions = {};
 
-const findOrCreateSession = (roomId) => {
+const findOrCreateSession = (data) => {
   let sessionId;
   // Let's see if we already have a session for the roomId
   Object.keys(sessions).forEach(k => {
-    if (sessions[k].roomId === roomId) {
+    if (sessions[k].roomId === data.roomId && sessions[k].personEmail === data.personEmail) {
       // Yep, got it!
       sessionId = k;
     }
@@ -28,7 +28,7 @@ const findOrCreateSession = (roomId) => {
   if (!sessionId) {
     // No session found for roomId, let's create a new one
     sessionId = new Date().toISOString();
-    sessions[sessionId] = { roomId: roomId, context: {botId: '111'} };
+    sessions[sessionId] = { roomId: data.roomId, personEmail: data.personEmail, context: {botId: '111'} };
     console.log("created new session:", sessions[sessionId]);
   }
   return sessionId;
@@ -276,7 +276,7 @@ function processSparkMessage(err, d) {
   if (d) {
     // console.log("got message:", d);
     var data = JSON.parse(d);
-    const sessionId = findOrCreateSession(data.roomId);
+    const sessionId = findOrCreateSession(data);
     try {
       dobby_bot.runActions(
         actions,
