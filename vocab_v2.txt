@@ -21,7 +21,9 @@ dobby,topic,intent,#intent
 dobby,topic,intent,#intents
 dobby,topic,input,#input
 dobby,topic,input,#inputs
-dobby,topic,logic,#when
+dobby,topic,logic,#logic
+dobby,intent,create,#when
+dobby,intent,show,#show
 dobby,input,learn,#learn
 dobby,input,forget,#forget
 dobby,input,list,#list

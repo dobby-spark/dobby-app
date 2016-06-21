@@ -4,6 +4,7 @@ const cassandra = require('cassandra-driver');
 
 module.exports = {
   getState: getState,
+  getBotLogic: getBotLogic,
   createLogic: createLogic,
   getVocab: getVocab,
   getVocabTypes: getVocabTypes,
@@ -69,6 +70,12 @@ function createLogic(botId, input, output, cb) {
 function getState(botId, topic, intent, state, input, cb) {
   var query = 'SELECT o_msg, n_state, n_intent FROM state_mc WHERE botid = ? AND topic=? AND intent=? AND state=? AND input=?';
   var params = [botId, topic, intent, state, input];
+  cassClient.execute(query, params, cb);
+}
+
+function getBotLogic(botId, cb) {
+  var query = 'SELECT * FROM state_mc WHERE botid = ?';
+  var params = [botId];
   cassClient.execute(query, params, cb);
 }
 

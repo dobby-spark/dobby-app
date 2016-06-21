@@ -158,8 +158,27 @@ function createLogic(botId, input, output, context, cb) {
   });
 }
 
-function logicCommand(botId, context, cb) {
-  // syntax: #dobby #when
+function showLogic(botId, cb) {
+  dobby_cass.getBotLogic(botId, (err, res) => {
+    if (err) {
+      cb("failed to create transition in DB");
+    } else {
+      var states = "bot logic is:\n";
+      res && res.rows.length && res.rows.forEach((row) => {
+        states = states + 'when topic is ' + row.topic + 
+          ' and intent is ' + row.intent +
+          ' and state is ' + row.state + 
+          ' and input is ' + row.input + ' ==> ' +
+          'new intent/state ' + row.n_intent + '/' + row.n_state +
+          ' and say "' + row.o_msg + '"\n';
+        });
+      cb(states);
+    }
+  });
+}
+
+function logicCreateCommand(botId, context, cb) {
+  // syntax: #dobby #logic #when
   //  [ topic is <topic>] and
   //  [intent is <intent>] and
   //  [state is <state>] and
@@ -167,9 +186,9 @@ function logicCommand(botId, context, cb) {
   //  [transition to [intent]/[<state>]] and 
   //  [say <phrase>]
 
-  var args = context.message.replace(/#/g, '').replace('dobby', '').replace('when ', '').split(' then ');
+  var args = context.message.replace(/#/g, '').replace('dobby', '').replace('logic ', '').replace('when ', '').split(' then ');
   if (args.length != 2) {
-    cb('command syntax not correct, please refer to #dobby #help #when');
+    cb('command syntax not correct, please refer to #dobby #help #logic');
   } else {
     var conditions = args[0].split(' and ');
     var actions = args[1].split(' and ');
@@ -232,6 +251,16 @@ function logicCommand(botId, context, cb) {
     } else {
       createLogic(botId, input, output, context, cb);
     }
+  }
+}
+
+function logicCommand(botId, context, cb) {
+  if (context.state == 'create') {
+      logicCreateCommand(botId, context, cb);
+  } else if (context.state == 'show') {
+      showLogic(botId, cb);
+  } else {
+      cb('logic command not implemented: ' + context.message.replace('#dobby ', ''));
   }
 }
 

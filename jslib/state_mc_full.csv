@@ -36,11 +36,14 @@
 ### system bot state m/c
 111,1,1,1,1,,,please configure your bot using #dobby commands
 dobby,1,1,1,1,,,"type \"#dobby #help\" for list of commands"
-dobby,1,1,1,help,,,"syntax: '#dobby <command>', where <command> is #vocab | #reset | #topic | #intent | #input | #when"
+dobby,1,1,1,help,,,"syntax: '#dobby <command>', where <command> is #vocab | #reset | #topic | #intent | #input | #logic"
 dobby,reset,1,1,1,#execute,,
 dobby,vocab,1,1,1,#execute,,
-dobby,logic,1,1,1,#execute,,
-dobby,logic,1,1,help,,,"syntax: '#dobby #when [ topic is <topic>] and [intent is <intent>] and [state is <state>] then [transition to [intent]/[<state>]] and [say <phrase>]'"
+dobby,logic,create,1,1,#execute,create,
+dobby,logic,create,1,help,,,"syntax: '#dobby #logic #when [ topic is <topic> and] [intent is <intent>] [and state is <state>] [and input is <input>] then [transition to [intent][/<state>] and] [say <phrase>]'"
+dobby,logic,show,1,1,#execute,show,
+dobby,logic,show,1,help,,,"syntax: '#dobby #logic #show' to get a list of existing logic"
+dobby,logic,1,1,1,,,"syntax: '#dobby #logic #when | #show ', to create new logic or show existing logic"
 dobby,reset,1,1,help,,,"syntax: '#dobby #reset', to reset/end an active conversation"
 dobby,vocab,1,1,help,,,"syntax: '#dobby #vocab #learn | #forget that <alias> is <input>', where <alias> is the word you want to be learned | forget as <input>"
 dobby,topic,1,1,1,#execute,,
